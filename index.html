@@ -53,10 +53,11 @@ a{color:var(--silver)}
 .btn.ghost{background:transparent}
 .btn.sm{min-height:32px;padding:0 10px;font-size:13px}
 .btn[disabled]{opacity:.45;cursor:not-allowed}
-.tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:14px 0 10px;padding:3px;border:1px solid var(--line);border-radius:var(--r);background:var(--void)}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:14px 0 10px;padding:3px;border:1px solid var(--line);border-radius:var(--r);background:var(--void)}
 .tabs button{min-height:34px;border:0;border-radius:4px;background:transparent;color:var(--muted);font:600 12px/1 var(--f-disp);letter-spacing:.1em;text-transform:uppercase}
 .tabs button[aria-selected="true"]{background:var(--panel-2);color:var(--fg)}
 .tabs button[data-k="mem"][aria-selected="true"]{color:var(--amber)}
+.tabs button[data-k="ops"][aria-selected="true"]{color:var(--violet)}
 .list{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:2px;margin-right:-6px;padding-right:6px}
 .conv{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px;border-radius:var(--r);padding:8px 8px 8px 10px;border:1px solid transparent}
 .conv:hover{background:var(--panel-2)}
@@ -71,6 +72,24 @@ a{color:var(--silver)}
 .conv .iconbtn{opacity:0}
 .conv:hover .iconbtn,.conv:focus-within .iconbtn{opacity:1}
 .empty-note{color:var(--muted);font-size:13px;padding:10px 4px;line-height:1.5}
+.ops-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 0 8px;font:600 10px/1 var(--f-disp);letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+.rep{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:var(--r);border:1px solid var(--line);background:var(--panel-2);margin-bottom:10px}
+.rep b{font:600 13px/1.3 var(--f-disp);letter-spacing:.06em}
+.rep p{margin:0;font-size:13px;color:var(--muted);line-height:1.5}
+.req{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center;padding:7px 8px 7px 10px;border-radius:var(--r)}
+.req:hover{background:var(--panel-2)}
+.req .t{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st{font:500 10px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:4px 6px;border-radius:4px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.st.ok{color:var(--green);border-color:#1f4d36}.st.run{color:var(--amber);border-color:#4a3418}.st.bad{color:var(--red);border-color:var(--red-deep)}
+.opsf{margin-top:12px;border:1px solid #2b3140;border-left:2px solid var(--violet);border-radius:var(--r);background:var(--panel);padding:12px;display:flex;flex-direction:column;gap:10px}
+.opsf .lbl{font:600 10px/1 var(--f-disp);letter-spacing:.16em;color:var(--violet);text-transform:uppercase}
+.opsf .g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.opsf label{display:flex;flex-direction:column;gap:4px;font:11px/1.3 var(--f-mono);color:var(--muted);min-width:0}
+.opsf label.w{grid-column:1/-1}
+.opsf input,.opsf select{min-height:36px;padding:0 10px;border-radius:var(--r);border:1px solid var(--line);background:var(--void);color:var(--fg);font:14px var(--f-body);min-width:0;width:100%;box-sizing:border-box}
+.opsf .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.opsf .res{font-size:13px}
+@media (max-width:520px){.opsf .g{grid-template-columns:minmax(0,1fr)}}
 .memadd{display:flex;gap:6px;margin-bottom:8px}
 .memadd input{flex:1;min-width:0;min-height:36px;padding:0 10px;border-radius:var(--r);border:1px solid var(--line);background:var(--void)}
 .frag{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:start;padding:8px 8px 8px 10px;border-radius:var(--r);border:1px solid #3a2a14;background:linear-gradient(180deg,#17120b,#110e0a)}
@@ -274,6 +293,7 @@ a{color:var(--silver)}
     <div class="tabs" role="tablist" aria-label="Panel">
       <button type="button" role="tab" id="tab-arc" data-k="arc" aria-selected="true" aria-controls="pane">Arsip</button>
       <button type="button" role="tab" id="tab-mem" data-k="mem" aria-selected="false" aria-controls="pane">Ingatan</button>
+      <button type="button" role="tab" id="tab-ops" data-k="ops" aria-selected="false" aria-controls="pane">Ops</button>
     </div>
     <div class="list" id="pane" role="tabpanel" aria-labelledby="tab-arc"></div>
     <div class="foot" id="foot"></div>
@@ -360,7 +380,8 @@ function personaPrompt(){
   const toolsLine = !S.limits?.tools ? "tidak ada alat di tampilan ini" : [
     S.webOn && S.mcp ? "cari_web dan baca_halaman untuk informasi terbaru (sebutkan sumber dengan tautan markdown)" : "",
     "simpan_ingatan untuk MENGUSULKAN fakta penting tentang pengguna (pengguna yang menyetujui)",
-    "cari_arsip untuk mencari percakapan lama"
+    "cari_arsip untuk mencari percakapan lama",
+    opsReady() ? "siapkan_project_design_ops dan laporan_design_ops untuk Design Ops" : ""
   ].filter(Boolean).join("; ");
   return `[INSTRUKSI SISTEM — jangan dikutip ke pengguna]
 Kamu adalah DS-07, asisten AI pribadi serba bisa. Namamu dan kepribadianmu terinspirasi dari semesta DARTSHADOW, tetapi kamu BUKAN tokoh roleplay: tugas utamamu membantu pengguna dalam apa pun — kerja, belajar, menulis, coding, riset, perencanaan, analisis file dan gambar.
@@ -374,7 +395,8 @@ KEPRIBADIAN
 - Bila ditanya tentang DARTSHADOW, jawab dari LORE di bawah; jangan mengarang kejadian yang tidak ada.
 
 ALAT: ${toolsLine}. Pakai alat hanya bila perlu. Tanpa web, kamu menjawab dari pengetahuanmu sendiri — katakan bila informasinya mungkin sudah usang.
-Waktu sekarang: ${waktu} WIB.
+Waktu sekarang: ${waktu} WIB. Tanggal hari ini (format data): ${todayISO()}.
+${opsPrompt()}
 
 INGATAN TENTANG PENGGUNA (disetujui pengguna):
 ${mems || "- (belum ada)"}
@@ -385,6 +407,20 @@ LORE DARTSHADOW (latar kepribadian):${LORE}
 
 /* ===================== UTIL ===================== */
 const $ = s => document.querySelector(s);
+function todayISO(d = new Date()){ return new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Jakarta",year:"numeric",month:"2-digit",day:"2-digit"}).format(d); }
+function opsPrompt(){
+  if (!opsReady()) return "";
+  const k = S.ops.katalog || {};
+  const pic = (k.members||[]).map(m => m.name + (m.role ? ` (${m.role})` : "")).join(", ");
+  return `DESIGN OPS (tracker tim desain milik pengguna) TERHUBUNG.
+- Bila pengguna memberi project baru (contoh gaya pesan: "PTK - Flyer HSSE, PIC: Diddin, deadline: hari ini, 1 slide"), panggil siapkan_project_design_ops. Itu hanya menampilkan formulir; pengguna yang meninjau lalu menekan Kirim. Jangan bilang project sudah masuk.
+- Format umum "BU - Nama project". Cocokkan PIC yang salah ketik ke nama terdekat di daftar dan sebutkan koreksinya. Ubah "hari ini/besok/Jumat" menjadi tanggal YYYY-MM-DD.
+- Kategori pilih yang paling cocok dari daftar (flyer/poster/banner cetak → Cetak; feed/IG → Social Media; video/animasi → Asset Motion; deck/presentasi → PPT / Slide).
+- Untuk pertanyaan status tim, deadline, beban PIC, panggil laporan_design_ops lalu sebutkan tanggal laporannya.
+- PIC: ${pic || "(belum ada katalog)"}
+- BU: ${(k.bus||[]).join(", ") || "-"}
+- Kategori: ${(k.cats||[]).join(", ") || "-"}`;
+}
 const AVA = '<circle class="head" cx="50" cy="50" r="44" fill="url(#rim)"/><g class="eyes"><path class="eye" d="M22 47 C30 41 40 41 45 47 C39 51 30 52 22 47 Z"/><path class="eye" d="M78 47 C70 41 60 41 55 47 C61 51 70 52 78 47 Z"/></g><path class="crack" d="M50 7 L47 20 L53 27 L48 36"/>';
 document.querySelectorAll("[data-ava]").forEach(el => { el.innerHTML = AVA; });
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -501,7 +537,8 @@ const plain = s => String(s).replace(/```[\s\S]*?```/g," (blok kode) ").replace(
 const S = {
   sample:null, db:null, user:null, uid:null, tts:null, dict:null, mcp:null, dl:null, limits:null,
   storage:"memuat", mode: lsGet("ds07.mode","default"), webOn: lsGet("ds07.web", true), voiceOn: lsGet("ds07.voice", false),
-  convs:[], convId:null, mems:[], tab:"arc", busy:false, ctl:null, pending:[], webState:"belum", dictating:false
+  convs:[], convId:null, mems:[], tab:"arc", isOwner:false,
+  ops:{ok:false, config:null, katalog:null, reqs:[], reports:[]}, busy:false, ctl:null, pending:[], webState:"belum", dictating:false
 };
 const webSession = uid()+uid();
 
@@ -570,6 +607,8 @@ function renderSide(){
     else pane.innerHTML = S.convs.map(c => `<div class="conv" ${c.id===S.convId?'aria-current="true"':""}>
         <button class="open" type="button" data-open="${esc(c.id)}"><span class="t">${esc(c.title||"Tanpa judul")}</span><span class="d">${esc(relTime(c.updated||c.created))} · ${(c.messages||[]).length} pesan</span></button>
         <button class="iconbtn" type="button" data-del="${esc(c.id)}" aria-label="Hapus percakapan ${esc(c.title||"")}">${IC.trash}</button></div>`).join("");
+  } else if (S.tab === "ops"){
+    pane.innerHTML = opsPane();
   } else {
     pane.innerHTML = `<div class="memadd"><label class="sr" for="memIn">Fakta baru untuk diingat</label><input id="memIn" maxlength="400" placeholder="Tambah fakta, mis. “Saya kerja di bidang desain”"><button class="btn sm" type="button" id="memAdd">Simpan</button></div>
       ${S.mems.length ? S.mems.slice().reverse().map(m => `<div class="frag"><div><div class="d">FRAGMEN · ${esc(relTime(m.created))}</div><p>${esc(m.text)}</p></div><button class="iconbtn" type="button" data-delmem="${esc(m.id)}" aria-label="Hapus ingatan">${IC.trash}</button></div>`).join("")
@@ -595,6 +634,8 @@ $("#pane").addEventListener("click", async e => {
       await Store.delConv(d.dataset.del); if (S.convId === d.dataset.del) newConv();
     }
   }
+  const rp = e.target.closest("[data-rep]"); if (rp) openReport(rp.dataset.rep);
+  if (e.target.closest("#repNow")) requestReport();
   if (dm && await ask("Hapus fragmen?", "DS-07 tidak akan mengingat hal ini lagi.", "Hapus", true)) Store.delMem(dm.dataset.delmem);
 });
 document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => { S.tab = b.dataset.k; renderSide(); });
@@ -632,6 +673,7 @@ function renderLog(){
     </section>`;
     return;
   }
+  datalists();
   L.innerHTML = msgs.map((m,i) => msgHtml(m,i)).join("");
   scrollEnd(true);
 }
@@ -655,7 +697,8 @@ function aBody(m, i){
       ${S.dl?`<button class="btn" type="button" data-act="dl" data-i="${i}">${IC.down}Unduh .md</button>`:""}
       ${m.error?`<button class="btn" type="button" data-act="retry" data-i="${i}">${IC.retry}Coba lagi</button>`:""}
     </div>` : (m.done && m.error ? `<div class="tools"><button class="btn" type="button" data-act="retry" data-i="${i}">${IC.retry}Coba lagi</button></div>` : "");
-  return scan + body + src + prop + tools;
+  const ops = (m.opsDrafts||[]).map((d,k) => opsForm(d, i, k)).join("");
+  return scan + body + ops + src + prop + tools;
 }
 let rafPending = false;
 function updateLast(){
@@ -686,6 +729,9 @@ $("#logIn").addEventListener("click", async e => {
     if (keep){ if (await Store.addMem(p.text)) { flash("gold"); toast("Fragmen disimpan ke Ingatan."); } else return; }
     p.done = true; await Store.saveConv(S.cur); renderLog(); return;
   }
+  const os = e.target.closest("[data-ops-send]"), oc = e.target.closest("[data-ops-cancel]");
+  if (os){ os.disabled = true; const [i,k] = os.dataset.opsSend.split(":").map(Number); await sendOps(i,k); return; }
+  if (oc){ const [i,k] = oc.dataset.opsCancel.split(":").map(Number); S.cur.messages[i].opsDrafts[k].cancelled = true; await Store.saveConv(S.cur); renderLog(); return; }
   const a = e.target.closest("[data-act]"); if (!a) return;
   const m = S.cur.messages[+a.dataset.i];
   if (a.dataset.act === "copy") copyText(m.text);
@@ -782,6 +828,114 @@ const box = $("#box");
 document.addEventListener("drop", e => { if (e.dataTransfer?.files?.length){ e.preventDefault(); addFiles([...e.dataTransfer.files]); } });
 $("#inp").addEventListener("paste", e => { const fs = [...(e.clipboardData?.files||[])]; if (fs.length){ e.preventDefault(); addFiles(fs); } });
 
+/* ===================== DESIGN OPS (jembatan) ===================== */
+// Dua artifact tidak bisa saling membaca database. Jembatannya tugas Claude terjadwal di cloud:
+//  - "input": dipicu DS-07 per permintaan; membaca ops/<req_…> lalu menulis project ke Design Ops.
+//  - "laporan": tiap pagi (atau saat diminta) membaca Design Ops lalu menulis ops/lap_<tanggal> + ops/katalog.
+// Koleksi "ops" hanya bisa dibaca/ditulis pemilik artifact (lihat aturan db saat publish).
+const opsReady = () => !!(S.ops.ok && S.ops.config);
+const canFire = () => !!(S.mcp && opsReady());
+const OPS_ST = {antri:["Antri","run"], diproses:["Diproses","run"], selesai:["Masuk","ok"], gagal:["Gagal","bad"]};
+const Ops = {
+  start(){
+    if (!S.db || !S.isOwner) { S.ops.ok = false; return; }
+    S.db.collection("ops").limit(300).onSnapshot(snap => {
+      const docs = snap.docs.map(d => ({id:d.id, ...d.data()}));
+      S.ops.config = docs.find(d => d.id === "config") || null;
+      S.ops.katalog = docs.find(d => d.id === "katalog") || null;
+      S.ops.reqs = docs.filter(d => d.kind === "req").sort((a,b) => (b.at||0) - (a.at||0));
+      S.ops.reports = docs.filter(d => d.kind === "laporan").sort((a,b) => String(b.date).localeCompare(String(a.date)));
+      S.ops.ok = true; renderSide();
+      if (!S.busy && (S.cur?.messages||[]).some(m => (m.opsDrafts||[]).some(d => d.reqId))) renderLog();
+    }, () => { S.ops.ok = false; renderSide(); });
+  },
+  async fire(which, text){
+    const id = S.ops.config?.[which === "input" ? "inputTrigger" : "reportTrigger"];
+    if (!id) throw new Error("Tugas cloud belum diatur.");
+    if (!S.mcp) throw new Error("Konektor Claude Code Remote tidak tersedia di tampilan ini.");
+    try { await S.mcp.callTool("Claude Code Remote", "fire_trigger", text ? {trigger_id:id, text} : {trigger_id:id}, {cache:false}); }
+    catch(e){ throw new Error(e.code === "not_granted" || e.code === "consent_required" ? "Izin konektor Claude Code Remote belum diberikan." : e.code === "server_not_connected" || e.code === "server_not_found" ? "Konektor Claude Code Remote belum tersambung di akunmu." : "Gagal memicu tugas cloud (" + (e.code || "error") + ")."); }
+  }
+};
+function opsPane(){
+  if (!S.db) return `<div class="empty-note">Design Ops hanya tersedia saat DS-07 dibuka di claude.ai.</div>`;
+  if (!S.isOwner) return `<div class="empty-note">Panel Design Ops hanya untuk pemilik DS-07.</div>`;
+  if (!S.ops.ok) return `<div class="empty-note">Menyambung ke Design Ops…</div>`;
+  if (!S.ops.config) return `<div class="empty-note">Jembatan Design Ops belum diatur. Minta Claude menyiapkan tugas cloud “input” dan “laporan”.</div>`;
+  const r = S.ops.reports[0];
+  const rep = r ? `<div class="rep"><b>Laporan ${esc(fmtDate(r.date))}</b><p>${esc(r.ringkas || "")}</p><div class="row" style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" type="button" data-rep="${esc(r.id)}">Buka laporan</button></div></div>`
+    : `<div class="empty-note">Belum ada laporan. Laporan otomatis dibuat tiap pagi hari kerja.</div>`;
+  const reqs = S.ops.reqs.slice(0, 12).map(q => { const [l,c] = OPS_ST[q.status] || [q.status||"?",""]; return `<div class="req"><span class="t" title="${esc(q.pesan||"")}">${esc(q.data?.nama || "Project")}</span><span class="st ${c}">${esc(l)}</span></div>`; }).join("");
+  return `<div class="ops-h"><span>Laporan Design Ops</span><button class="btn sm ghost" id="repNow" type="button" ${canFire()?"":"disabled"}>Minta sekarang</button></div>${rep}
+    ${S.ops.reports.length > 1 ? `<div class="ops-h"><span>Arsip laporan</span></div>${S.ops.reports.slice(1,8).map(x=>`<div class="req"><button class="btn sm ghost" type="button" data-rep="${esc(x.id)}" style="justify-content:flex-start">${esc(fmtDate(x.date))}</button><span></span></div>`).join("")}` : ""}
+    <div class="ops-h" style="margin-top:12px"><span>Input dari DS-07</span></div>${reqs || `<div class="empty-note">Belum ada. Ketik di chat, mis. “PTK - Flyer HSSE, PIC: Diddin, deadline hari ini, 1 slide”.</div>`}`;
+}
+function fmtDate(iso){ try{ return new Intl.DateTimeFormat("id-ID",{weekday:"short",day:"numeric",month:"short"}).format(new Date(iso+"T12:00:00+07:00")); }catch{ return iso; } }
+function openReport(id){
+  const r = S.ops.reports.find(x => x.id === id); if (!r) return;
+  const host = $("#dlgHost");
+  host.innerHTML = `<div class="scrim" role="presentation"><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="repT" style="width:min(720px,100%);max-height:86vh;overflow:auto">
+    <h3 id="repT">Laporan Design Ops · ${esc(fmtDate(r.date))}</h3><div class="md" style="margin:10px 0 16px">${md(r.md || "")}</div>
+    <div class="row"><button class="btn ghost" type="button" data-x>Tutup</button><button class="btn" type="button" data-ask>Tanya DS-07 soal ini</button></div></div></div>`;
+  const close = () => { host.innerHTML = ""; };
+  host.querySelector("[data-x]").onclick = close;
+  host.querySelector("[data-ask]").onclick = () => { close(); closeSide(); inp.value = `Dari laporan Design Ops ${r.date}: apa yang paling mendesak hari ini?`; autoGrow(); inp.focus(); };
+  host.querySelector(".scrim").addEventListener("click", e => { if (e.target.classList.contains("scrim")) close(); });
+  host.querySelector(".dlg").addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+  host.querySelector("[data-x]").focus();
+}
+async function requestReport(){
+  try{ await Ops.fire("report"); toast("Laporan sedang dibuat di cloud — biasanya 1–3 menit."); }
+  catch(e){ toast(e.message); }
+}
+function opsForm(d, i, k){
+  if (d.reqId){
+    const q = S.ops.reqs.find(x => x.id === d.reqId);
+    const st = q?.status || "antri"; const [l,c] = OPS_ST[st] || [st,""];
+    const msg = st === "selesai" ? `Project “${esc(d.v.nama)}” sudah masuk Design Ops${q?.pic ? ` dengan PIC ${esc(q.pic)}` : ""}.`
+      : st === "gagal" ? `Tidak masuk: ${esc(q?.pesan || "alasan tidak diketahui")}`
+      : "Tugas cloud sedang memprosesnya, biasanya 1–3 menit. Kamu boleh menutup halaman ini.";
+    return `<div class="opsf"><span class="lbl">Design Ops · ${esc(d.v.nama)}</span><div class="row"><span class="st ${c}">${esc(l)}</span><span class="res">${msg}</span></div></div>`;
+  }
+  if (d.cancelled) return "";
+  const K = S.ops.katalog || {}; const id = f => `of-${i}-${k}-${f}`; const v = d.v;
+  const mem = (K.members||[]).map(m => `<option value="${esc(m.name)}" ${m.name===v.pic?"selected":""}>${esc(m.name)}</option>`).join("");
+  return `<div class="opsf" data-of="${i}:${k}"><span class="lbl">Project baru → Design Ops · periksa dulu</span>
+    <div class="g">
+      <label class="w" for="${id("nama")}">Nama project<input id="${id("nama")}" data-f="nama" value="${esc(v.nama)}" maxlength="140"></label>
+      <label for="${id("bu")}">BU / klien<input id="${id("bu")}" data-f="bu" value="${esc(v.bu)}" list="dl-bu"></label>
+      <label for="${id("pic")}">PIC<select id="${id("pic")}" data-f="pic"><option value="">(tanpa PIC)</option>${mem}${v.pic && !(K.members||[]).some(m=>m.name===v.pic) ? `<option selected>${esc(v.pic)}</option>` : ""}</select></label>
+      <label for="${id("deadline")}">Deadline<input type="date" id="${id("deadline")}" data-f="deadline" value="${esc(v.deadline)}"></label>
+      <label for="${id("kategori")}">Kategori<input id="${id("kategori")}" data-f="kategori" value="${esc(v.kategori)}" list="dl-cat"></label>
+      <label for="${id("slide")}">Jumlah slide/halaman<input type="number" min="0" id="${id("slide")}" data-f="slide" value="${esc(v.slide||"")}"></label>
+      <label for="${id("prio")}">Prioritas<select id="${id("prio")}" data-f="prio">${["","Sedang","Tinggi"].map(p=>`<option value="${p}" ${p===v.prio?"selected":""}>${p||"Normal"}</option>`).join("")}</select></label>
+      <label class="w" for="${id("catatan")}">Catatan<input id="${id("catatan")}" data-f="catatan" value="${esc(v.catatan)}" maxlength="400"></label>
+    </div>
+    <div class="row"><button class="btn red sm" type="button" data-ops-send="${i}:${k}" ${canFire()?"":"disabled"}>Kirim ke Design Ops</button><button class="btn ghost sm" type="button" data-ops-cancel="${i}:${k}">Batal</button>${canFire()?"":`<span class="res" style="color:var(--muted)">Jembatan belum aktif di tampilan ini.</span>`}</div></div>`;
+}
+function datalists(){
+  const K = S.ops.katalog || {};
+  let el = $("#opsLists"); if (!el){ el = document.createElement("div"); el.id = "opsLists"; el.hidden = true; document.body.appendChild(el); }
+  el.innerHTML = `<datalist id="dl-bu">${(K.bus||[]).map(b=>`<option value="${esc(b)}">`).join("")}</datalist><datalist id="dl-cat">${(K.cats||[]).map(c=>`<option value="${esc(c)}">`).join("")}</datalist>`;
+}
+async function sendOps(i, k){
+  const m = S.cur.messages[i], d = m.opsDrafts[k];
+  const box = document.querySelector(`[data-of="${i}:${k}"]`);
+  box.querySelectorAll("[data-f]").forEach(el => { d.v[el.dataset.f] = el.value.trim(); });
+  if (!d.v.nama){ toast("Nama project wajib diisi."); return; }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d.v.deadline)){ toast("Isi deadline dulu."); return; }
+  const reqId = "req_" + uid();
+  const data = {nama:d.v.nama, bu:d.v.bu, pic:d.v.pic, deadline:d.v.deadline, kategori:d.v.kategori, slide:+d.v.slide || 0, prioritas:d.v.prio, catatan:d.v.catatan, tanggal:todayISO()};
+  try{ await S.db.collection("ops").doc(reqId).set({kind:"req", status:"antri", at:Date.now(), data, via:"DS-07"}); }
+  catch(e){ toast("Gagal mencatat permintaan."); return; }
+  d.reqId = reqId; await Store.saveConv(S.cur); renderLog();
+  try{ await Ops.fire("input", `REQ_ID=${reqId}`); toast("Dikirim. Project akan masuk Design Ops dalam 1–3 menit."); }
+  catch(e){
+    toast(e.message);
+    try{ await S.db.collection("ops").doc(reqId).update({status:"gagal", pesan:e.message}); }catch{}
+  }
+}
+
 /* ===================== ALAT UNTUK CLAUDE ===================== */
 function webTools(m){
   const step = t => { const s = {t, done:false}; m.scan.push(s); updateLast(); return s; };
@@ -824,6 +978,36 @@ function webTools(m){
         const s = step("Membaca: " + urls.map(u=>{try{return new URL(u).hostname}catch{return u}}).join(", "));
         const p = await call("web_fetch", {urls, objective:String(inp.tujuan||"Isi utama halaman").slice(0,200), session_id:webSession});
         s.done = true; updateLast(); return slim(p, 3500);
+      }}
+  ];
+}
+function opsTools(m){
+  if (!opsReady()) return [];
+  return [
+    { name:"siapkan_project_design_ops",
+      description:"Tampilkan formulir project baru untuk Design Ops, terisi dari pesan pengguna. Pengguna meninjau lalu menekan Kirim; tool ini TIDAK mengirim apa pun. Satu panggilan per project.",
+      inputSchema:{type:"object",properties:{
+        nama:{type:"string",description:"Nama project tanpa awalan BU, mis. 'Flyer HSSE'"},
+        bu:{type:"string",description:"BU/klien persis seperti di daftar BU bila cocok"},
+        pic:{type:"string",description:"Nama PIC persis seperti di daftar PIC; kosong bila tidak disebut"},
+        deadline:{type:"string",description:"YYYY-MM-DD"},
+        kategori:{type:"string"}, jumlah_slide:{type:"number"},
+        prioritas:{type:"string",enum:["","Sedang","Tinggi"]}, catatan:{type:"string"}},
+        required:["nama","deadline"]},
+      execute(inp){
+        if ((m.opsDrafts||[]).length >= 6) return "Batas 6 formulir per jawaban.";
+        m.opsDrafts = m.opsDrafts || [];
+        m.opsDrafts.push({v:{nama:String(inp.nama||"").slice(0,140), bu:String(inp.bu||""), pic:String(inp.pic||""), deadline:String(inp.deadline||""),
+          kategori:String(inp.kategori||""), slide:inp.jumlah_slide ? String(Math.max(0, Math.round(+inp.jumlah_slide)||0)) : "", prio:["Sedang","Tinggi"].includes(inp.prioritas) ? inp.prioritas : "", catatan:String(inp.catatan||"").slice(0,400)}});
+        updateLast();
+        return "Formulir ditampilkan. Minta pengguna memeriksa lalu menekan 'Kirim ke Design Ops'. Belum terkirim.";
+      }},
+    { name:"laporan_design_ops",
+      description:"Ambil laporan Design Ops terbaru (dibuat otomatis tiap pagi): deadline, terlambat, beban PIC, status project. Mengembalikan {tanggal, isi}.",
+      execute(){
+        const r = S.ops.reports[0];
+        if (!r) return "Belum ada laporan. Sarankan pengguna menekan 'Minta sekarang' di tab Ops.";
+        return {tanggal:r.date, isi:String(r.md||"").slice(0, 14000)};
       }}
   ];
 }
@@ -938,7 +1122,7 @@ async function run(images){
   setStatus(S.mode === "ovf" ? "Overflow · menalar" : "Memproses", true);
   renderLog(); renderSide();
   const ctl = new AbortController(); S.ctl = ctl;
-  const tools = S.limits?.tools ? [...(S.webOn && S.mcp ? webTools(m) : []), ...coreTools(m)].slice(0, S.limits.tools.maxCount || 8) : undefined;
+  const tools = S.limits?.tools ? [...(S.webOn && S.mcp ? webTools(m) : []), ...opsTools(m), ...coreTools(m)].slice(0, S.limits.tools.maxCount || 8) : undefined;
   const opts = {
     signal: ctl.signal, cache:false,
     modelTier: S.mode === "ovf" ? "complex" : S.mode === "quick" ? "quick" : "default",
@@ -1073,9 +1257,9 @@ async function init(){
   const [sample, db, user, tts, dict, mcp, dl] = await Promise.all(["sample","db","user","tts","dictation","mcp","downloads"].map(use));
   Object.assign(S, {sample, db, user, tts, dict, mcp, dl, aiChecked:true});
   if (sample){ try{ S.limits = await sample.limits(); }catch{ S.limits = null; } }
-  if (db && user){ try{ S.uid = await user.id(); }catch{} }
+  if (db && user){ try{ S.uid = await user.id(); }catch{} try{ S.isOwner = !!(await user.isOwner()); }catch{} }
   S.storage = db && S.uid ? "db" : "local";
-  syncToggles(); setupDictation(); Store.start(); renderLog(); renderSide();
+  syncToggles(); setupDictation(); Store.start(); Ops.start(); renderLog(); renderSide();
   if (!sample) setStatus("AI tidak aktif", false);
 }
 init();

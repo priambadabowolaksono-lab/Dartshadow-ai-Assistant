@@ -23,7 +23,19 @@ DS-07 adalah asisten AI serba bisa bergaya **DARTSHADOW**: HUD gelap, hujan neon
 
 - **Tahap 2:** mode agen dengan alat (sandbox kode, grafik, pembuat file, tugas, pratinjau HTML).
 - **Tahap 3:** tugas terjadwal, pengingat, dan Misi Latar (lewat *scheduled tasks* Claude, zona WIB), serta konektor Drive, Granola, dan pembuat gambar.
-- **Integrasi Design Ops** (Minaret Seven): bentuknya masih dibahas.
+
+## Jembatan Design Ops
+
+Dua artifact tidak bisa saling membaca database. Karena itu jembatannya memakai **tugas terjadwal Claude di cloud** yang membaca dan menulis database atas nama pemilik:
+
+| Tugas cloud | Kapan jalan | Apa yang dikerjakan |
+|---|---|---|
+| Input project Design Ops | Dipicu DS-07 setiap kali kamu menekan **Kirim ke Design Ops** | Membaca `ops/req_…` di DS-07, mencocokkan PIC, menulis satu project baru ke Design Ops, lalu melaporkan statusnya balik |
+| Laporan pagi Design Ops | Senin–Jumat 06:47 WIB, atau tombol **Minta sekarang** | Hanya membaca Design Ops, lalu menulis `ops/lap_<tanggal>` dan `ops/katalog` (PIC, BU, kategori) |
+
+- Koleksi `ops` di DS-07 hanya bisa dibaca dan ditulis pemilik artifact (aturan db saat publish).
+- `ops/config` berisi id tugas cloud dan id anggota pemilik di Design Ops. Isinya diatur lewat database, tidak ditulis di kode.
+- Prompt kedua tugas cloud tersimpan di akun claude.ai (Scheduled tasks), tidak ada di repo ini.
 
 ## Menguji
 
