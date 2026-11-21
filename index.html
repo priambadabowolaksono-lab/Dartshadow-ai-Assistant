@@ -20,20 +20,27 @@
   --amber:#f0a44a;       /* Kai — ingatan, arsip */
   --gold:#ffd76a;        /* pilihan — hal yang disimpan */
   --pink:#ffb3c8;        /* Lira — momen hangat */
-  --violet:#a78bfa;      /* Voss/Rael — sistem luar */
+  --steel:#9fb0c4;       /* Design Ops — sistem luar (ungu di lore, baja di UI) */
   --green:#5fd49a;       /* Eira — status sehat */
   --eye:var(--red);
   --f-disp:"Oxanium","Rajdhani","Segoe UI",system-ui,sans-serif;
   --f-body:"IBM Plex Sans","Segoe UI",system-ui,-apple-system,sans-serif;
   --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
-  --r:6px;
+  --r-s:4px;             /* chip, kode sebaris */
+  --r:6px;               /* kontrol: tombol, field */
+  --r-c:8px;             /* kartu */
+  --r-l:12px;            /* dialog, komposer */
+  /* gerak: satu kurva UI, satu kurva masuk, tanpa pantulan */
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --ease-enter:cubic-bezier(.22,1,.36,1);
+  --m-in:150ms; --m-out:120ms; --m-press:90ms;
 }
 html,body{height:100%}
 body{background:var(--void);color:var(--fg);font:15px/1.6 var(--f-body);overflow:hidden}
 ::selection{background:var(--red-deep);color:#fff}
 button,input,textarea,select{font:inherit;color:inherit}
 button{cursor:pointer}
-:focus-visible{outline:2px solid var(--silver);outline-offset:2px}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px;transition:none}
 a{color:var(--silver)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
@@ -57,13 +64,13 @@ a{color:var(--silver)}
 .tabs button{min-height:34px;border:0;border-radius:4px;background:transparent;color:var(--muted);font:600 12px/1 var(--f-disp);letter-spacing:.1em;text-transform:uppercase}
 .tabs button[aria-selected="true"]{background:var(--panel-2);color:var(--fg)}
 .tabs button[data-k="mem"][aria-selected="true"]{color:var(--amber)}
-.tabs button[data-k="ops"][aria-selected="true"]{color:var(--violet)}
+.tabs button[data-k="ops"][aria-selected="true"]{color:var(--steel)}
 .list{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:2px;margin-right:-6px;padding-right:6px}
 .conv{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px;border-radius:var(--r);padding:8px 8px 8px 10px;border:1px solid transparent}
 .conv:hover{background:var(--panel-2)}
 .conv[aria-current="true"]{background:var(--panel-2);border-color:var(--line);box-shadow:inset 2px 0 0 var(--red)}
 .conv button.open{all:unset;cursor:pointer;min-width:0;display:block;border-radius:4px}
-.conv button.open:focus-visible,.chip button:focus-visible{outline:2px solid var(--silver);outline-offset:2px}
+.conv button.open:focus-visible,.chip button:focus-visible{outline:2px solid var(--red);outline-offset:2px}
 .conv .t{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}
 .conv .d{display:block;font:11px/1.4 var(--f-mono);color:var(--muted)}
 .iconbtn{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:var(--r);border:1px solid transparent;background:transparent;color:var(--muted)}
@@ -73,7 +80,7 @@ a{color:var(--silver)}
 .conv:hover .iconbtn,.conv:focus-within .iconbtn{opacity:1}
 .empty-note{color:var(--muted);font-size:13px;padding:10px 4px;line-height:1.5}
 .ops-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 0 8px;font:600 10px/1 var(--f-disp);letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
-.rep{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:var(--r);border:1px solid var(--line);background:var(--panel-2);margin-bottom:10px}
+.rep{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:var(--r-c);border:1px solid var(--line);background:var(--panel-2);margin-bottom:10px}
 .rep b{font:600 13px/1.3 var(--f-disp);letter-spacing:.06em}
 .rep p{margin:0;font-size:13px;color:var(--muted);line-height:1.5}
 .req{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center;padding:7px 8px 7px 10px;border-radius:var(--r)}
@@ -81,8 +88,8 @@ a{color:var(--silver)}
 .req .t{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .st{font:500 10px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:4px 6px;border-radius:4px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
 .st.ok{color:var(--green);border-color:#1f4d36}.st.run{color:var(--amber);border-color:#4a3418}.st.bad{color:var(--red);border-color:var(--red-deep)}
-.opsf{margin-top:12px;border:1px solid #2b3140;border-left:2px solid var(--violet);border-radius:var(--r);background:var(--panel);padding:12px;display:flex;flex-direction:column;gap:10px}
-.opsf .lbl{font:600 10px/1 var(--f-disp);letter-spacing:.16em;color:var(--violet);text-transform:uppercase}
+.opsf{margin-top:12px;border:1px solid #2b3140;border-left:2px solid var(--steel);border-radius:var(--r-c);background:var(--panel);padding:12px;display:flex;flex-direction:column;gap:10px}
+.opsf .lbl{font:600 10px/1 var(--f-disp);letter-spacing:.16em;color:var(--steel);text-transform:uppercase}
 .opsf .g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .opsf label{display:flex;flex-direction:column;gap:4px;font:11px/1.3 var(--f-mono);color:var(--muted);min-width:0}
 .opsf label.w{grid-column:1/-1}
@@ -92,7 +99,7 @@ a{color:var(--silver)}
 @media (max-width:520px){.opsf .g{grid-template-columns:minmax(0,1fr)}}
 .memadd{display:flex;gap:6px;margin-bottom:8px}
 .memadd input{flex:1;min-width:0;min-height:36px;padding:0 10px;border-radius:var(--r);border:1px solid var(--line);background:var(--void)}
-.frag{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:start;padding:8px 8px 8px 10px;border-radius:var(--r);border:1px solid #3a2a14;background:linear-gradient(180deg,#17120b,#110e0a)}
+.frag{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:start;padding:8px 8px 8px 10px;border-radius:var(--r-c);border:1px solid #3a2a14;background:linear-gradient(180deg,#17120b,#110e0a)}
 .frag p{margin:0;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
 .frag .d{font:10px/1.4 var(--f-mono);color:#b98a4c;letter-spacing:.06em}
 .foot{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:4px;font:11px/1.5 var(--f-mono);color:var(--muted)}
@@ -140,7 +147,7 @@ a{color:var(--silver)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 @keyframes blink{50%{transform:scaleY(.1)}}
 
-.log{flex:1;min-height:0;overflow-y:auto;scroll-behavior:smooth}
+.log{flex:1;min-height:0;overflow-y:auto}
 .log-in{max-width:820px;margin:0 auto;padding-block:24px 32px;padding-left:20px;padding-right:max(20px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px}
 .msg{display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px}
 .msg .who{font:600 11px/1 var(--f-disp);letter-spacing:.14em;color:var(--muted);margin-bottom:6px;display:flex;gap:10px;align-items:center}
@@ -148,7 +155,7 @@ a{color:var(--silver)}
 .msg .mk{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;margin-top:-4px}
 .msg.u .mk{border:1px solid var(--line);background:var(--panel-2);color:var(--silver)}
 .msg.u .mk svg{width:14px;height:14px}
-.msg.u .body{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r);padding:10px 14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.u .body{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r-c);padding:10px 14px;white-space:pre-wrap;overflow-wrap:anywhere}
 .att{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .chip{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:3px 8px;border-radius:4px;border:1px solid var(--line);background:var(--void);font:11px/1.5 var(--f-mono);color:var(--muted)}
 .chip span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
@@ -166,7 +173,7 @@ a{color:var(--silver)}
 .md li{margin:.15em 0}
 .md li::marker{color:var(--red)}
 .md code{font:13px/1.5 var(--f-mono);background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
-.md pre{position:relative;margin:0 0 .9em;background:#0a0b0f;border:1px solid var(--line);border-left:2px solid var(--red-deep);border-radius:var(--r);overflow:auto}
+.md pre{position:relative;margin:0 0 .9em;background:#0a0b0f;border:1px solid var(--line);border-left:2px solid var(--red-deep);border-radius:var(--r-c);overflow:auto}
 .md pre code{display:block;padding:12px 14px;border:0;background:none;white-space:pre;font-size:13px}
 .md pre .cp{position:absolute;top:6px;right:6px;color:var(--muted)}
 .md pre .cp svg{width:14px;height:14px}
@@ -184,7 +191,7 @@ a{color:var(--silver)}
 .scan div.done::before{content:"✓ ";color:var(--green)}
 .thinking{font:12px/1.5 var(--f-mono);color:var(--muted);letter-spacing:.06em}
 .thinking::after{content:"";display:inline-block;width:8px;height:12px;margin-left:6px;background:var(--eye);vertical-align:-1px;animation:pulse .9s steps(2) infinite}
-.err{border:1px solid var(--red-deep);background:#1a0a0e;border-radius:var(--r);padding:10px 12px;color:#ffd0d6;font-size:14px}
+.err{border:1px solid var(--red-deep);background:#1a0a0e;border-radius:var(--r-c);padding:10px 12px;color:#ffd0d6;font-size:14px}
 .tools{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
 .tools .btn{min-height:30px;padding:0 9px;font-size:12px;color:var(--muted);background:transparent}
 .tools .btn:hover{color:var(--fg)}
@@ -204,42 +211,32 @@ a{color:var(--silver)}
 .hello h2{margin:0;font:700 clamp(28px,5vw,44px)/1.05 var(--f-disp);letter-spacing:.04em;text-wrap:balance}
 .hello p{margin:0;color:var(--muted);max-width:56ch}
 .sugg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:6px}
-.sugg button{text-align:left;padding:12px 14px;border-radius:var(--r);border:1px solid var(--line);background:color-mix(in srgb,var(--panel) 85%,transparent);color:var(--fg);line-height:1.45}
-.sugg button:hover{border-color:#3a3f4c;background:var(--panel-2)}
+.sugg button{text-align:left;padding:12px 14px;border-radius:var(--r-c);border:1px solid var(--line);background:color-mix(in srgb,var(--panel) 85%,transparent);color:var(--fg);line-height:1.45}
+
 .sugg small{display:block;font:500 10px/1.4 var(--f-mono);letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:3px}
-.notice{border:1px solid #3a2a14;background:#15100a;color:#e8cfa8;border-radius:var(--r);padding:10px 12px;font-size:13px}
+.notice{border:1px solid #3a2a14;background:#15100a;color:#e8cfa8;border-radius:var(--r-c);padding:10px 12px;font-size:13px}
 
 /* komposer */
 .comp{padding-block:10px 14px;padding-left:20px;padding-right:max(20px,env(safe-area-inset-right,0px));border-top:1px solid var(--line);background:color-mix(in srgb,var(--void) 88%,transparent)}
 .comp-in{max-width:820px;margin:0 auto}
-.box{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:end;gap:6px;border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:6px;transition:border-color .2s,box-shadow .2s}
-.box:focus-within{border-color:#3a3f4c}
+.box{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:end;gap:6px;border:1px solid var(--line);border-radius:var(--r-l);background:var(--panel);padding:6px;transition:border-color 140ms var(--ease),box-shadow 140ms var(--ease)}
+.box:focus-within{border-color:var(--red-deep);box-shadow:0 0 0 3px #ff3b4f1f}
 .ovf .box{border-color:var(--red-deep);box-shadow:0 0 0 1px #ff3b4f22,0 0 24px #ff3b4f1a}
 .box textarea{box-sizing:border-box;resize:none;border:0;background:transparent;outline:none;height:40px;min-height:40px;max-height:200px;padding:9px 6px;line-height:1.5;overflow-x:hidden}
-.box textarea::placeholder{color:#666b76}
+.box textarea::placeholder{color:#7d828d}
 .send{width:40px;height:40px;border-radius:8px;border:1px solid var(--red-deep);background:linear-gradient(180deg,#3a0f17,#250a10);color:#ffd9de;display:grid;place-items:center}
 .send:hover{border-color:var(--red)}
 .send svg,.box .iconbtn svg{width:18px;height:18px}
 .box .iconbtn{width:40px;height:40px}
 .mic[aria-pressed="true"]{color:var(--red);border-color:var(--red-deep);animation:pulse 1.2s infinite}
-.hint{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:6px;font:11px/1.4 var(--f-mono);color:#5f6470}
+.hint{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:6px;font:11px/1.4 var(--f-mono);color:var(--muted)}
 .pend{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
 .drop{outline:2px dashed var(--red);outline-offset:-6px}
 
-/* boot */
-#boot{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:var(--void);transition:opacity .45s}
-#boot.out{opacity:0;pointer-events:none}
-#boot .core{display:flex;flex-direction:column;align-items:center;gap:16px}
-#boot .ava .eye{animation:ignite .9s ease-out both}
-#boot .ava .eye+.eye{animation-delay:.12s}
-#boot .ln{width:180px;height:1px;background:linear-gradient(90deg,transparent,var(--red),transparent);transform:scaleX(0);animation:fuse .7s .1s ease-out forwards}
-#boot .tx{font:500 11px/1.6 var(--f-mono);letter-spacing:.24em;color:var(--muted);text-align:center;min-height:3.2em}
-@keyframes ignite{0%{opacity:0}40%{opacity:.2}55%{opacity:1}65%{opacity:.4}100%{opacity:1}}
-@keyframes fuse{to{transform:scaleX(1)}}
 
 /* dialog */
 .scrim{position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:#000a;padding:16px}
-.dlg{width:min(420px,100%);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;box-shadow:0 20px 60px #000c}
+.dlg{width:min(420px,100%);background:var(--panel);border:1px solid var(--line);border-radius:var(--r-l);padding:18px;box-shadow:0 20px 60px #000c}
 .dlg h3{margin:0 0 6px;font:700 16px/1.2 var(--f-disp);letter-spacing:.08em}
 .dlg p{margin:0 0 16px;color:var(--muted);font-size:14px}
 .dlg .row{display:flex;justify-content:flex-end;gap:8px}
@@ -262,21 +259,59 @@ a{color:var(--silver)}
   .toggles{grid-column:3;grid-row:1}
   .tg .lab{display:none}
 }
+/* ---------- lapisan gerak: hover, tekan, garis bawah (hanya transform, opasitas, warna) ---------- */
+.btn,.send,.iconbtn,.tg,.seg button,.tabs button,.sugg button,.chip button{
+  transition:transform var(--m-out) var(--ease),background-color var(--m-out) var(--ease),border-color var(--m-out) var(--ease),color var(--m-out) var(--ease),box-shadow var(--m-out) var(--ease)}
+@media (hover:hover) and (pointer:fine){
+  .btn:not([disabled]):hover,.send:hover{transform:translateY(-1px);transition-duration:var(--m-in)}
+  .btn:not([disabled]):hover{background-color:color-mix(in srgb,var(--panel-2) 86%,var(--fg));border-color:#3d4250}
+  .btn.ghost:not([disabled]):hover{background-color:color-mix(in srgb,var(--void) 90%,var(--fg))}
+  .btn.red:not([disabled]):hover,.send:hover{background:color-mix(in srgb,#2a0d12 80%,var(--red));border-color:var(--red)}
+  .sugg button:hover{transform:translateY(-2px);border-color:#3d4250;box-shadow:0 10px 24px #0000001a;transition-duration:180ms}
+  .iconbtn:hover,.tg:hover,.seg button:hover,.tabs button:hover{color:var(--fg)}
+}
+.btn:not([disabled]):active,.send:active{transform:translateY(1px) scale(.985);transition-duration:var(--m-press)}
+.iconbtn:active,.tg:active,.seg button:active,.tabs button:active,.sugg button:active{transform:scale(.985);transition-duration:var(--m-press)}
+.md a,.src a{text-decoration:none;background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat,linear-gradient(#ffffff2e,#ffffff2e) 0 100%/100% 1px no-repeat;transition:background-size var(--m-out) var(--ease)}
+.md a:hover,.src a:hover,.md a:focus-visible,.src a:focus-visible{background-size:100% 1px,100% 1px;transition-duration:var(--m-in)}
+.memadd input:focus,.opsf input:focus,.opsf select:focus,.linkbox input:focus{outline:none;border-color:var(--red-deep);box-shadow:0 0 0 3px #ff3b4f1f;transition:border-color 140ms var(--ease),box-shadow 140ms var(--ease)}
+.is-copied{color:var(--green)!important}
+
+/* ---------- layar sambutan: masuk sekali saat dibuka (pengganti layar boot) ---------- */
+.hello .hero-ava{width:72px;height:72px}
+.hello .facts{display:flex;flex-wrap:wrap;gap:6px}
+.hello .fact{display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:0 10px;border-radius:var(--r-s);border:1px solid var(--line);background:color-mix(in srgb,var(--panel) 85%,transparent);font:12px/1 var(--f-mono);color:var(--muted)}
+.hello .fact b{color:var(--fg);font-weight:500}
+.hello button.fact{cursor:pointer}
+.hello h2 .ln{display:block;overflow:hidden;padding-bottom:.06em}
+.hello h2 .ln>span{display:block}
+.hello.enter h2 .ln>span{animation:rise 700ms var(--ease-enter) both}
+.hello.enter h2 .ln:nth-child(2)>span{animation-delay:80ms}
+.hello.enter .eyebrow{animation:rise-sm 520ms var(--ease-enter) both}
+.hello.enter .up{animation:rise-sm 520ms var(--ease-enter) both;animation-delay:calc(400ms + var(--i,0) * 60ms)}
+.hello.enter .hero-ava .eye{animation:ignite 900ms var(--ease-enter) both}
+.hello.enter .hero-ava .eye+.eye{animation-delay:120ms}
+@keyframes rise{from{transform:translateY(105%)}to{transform:none}}
+@keyframes rise-sm{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes ignite{from{opacity:0;transform:scaleX(.4)}to{opacity:1;transform:none}}
+.hello .hero-ava .eye{transform-box:fill-box;transform-origin:50% 50%}
+
+/* ---------- target sentuh 44px di layar sentuh dan HP ---------- */
+@media (pointer:coarse),(max-width:860px){
+  .iconbtn,.box .iconbtn,.send{width:44px;height:44px}
+  .btn,.btn.sm,.tools .btn,.tg,.seg button,.tabs button,.acct .btn,.memadd input,.opsf input,.opsf select,.linkbox input{min-height:44px}
+  .chip button{min-width:36px;min-height:36px;display:inline-grid;place-items:center}
+  .conv{padding-block:6px}
+  .hello .fact{min-height:44px}
+}
+
 @media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation:none!important;transition:none!important}
-  .log{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition-property:color,background-color,border-color,opacity!important;transform:none!important}
+  .btn:active,.send:active{background-color:color-mix(in srgb,var(--panel-2) 70%,#000)}
 }
 </style>
 
 <canvas id="rain" aria-hidden="true"></canvas>
-
-<div id="boot" aria-hidden="true">
-  <div class="core">
-    <svg class="ava" data-ava width="96" height="96" viewBox="0 0 100 100"></svg>
-    <div class="ln"></div>
-    <div class="tx" id="bootTx"></div>
-  </div>
-</div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
@@ -294,7 +329,7 @@ a{color:var(--silver)}
     </div>
     <button class="btn red" id="newChat" type="button">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-      Percakapan baru
+      Mulai percakapan
     </button>
     <div class="tabs" role="tablist" aria-label="Panel">
       <button type="button" role="tab" id="tab-arc" data-k="arc" aria-selected="true" aria-controls="pane">Arsip</button>
@@ -487,7 +522,7 @@ function accountDialog(){
     </ol>
     <div class="linkbox"><label class="sr" for="dsLink">Link DS-07</label><input id="dsLink" readonly value="${DS07_URL}"><button class="btn sm" type="button" data-cp>Salin</button></div>
     <p>Riwayat, ingatan, dan laporan Design Ops ikut di semua akun. Project yang dikirim dari akun selain pemilik masuk antrean dan diproses tiap jam (07.00–22.00 WIB).</p>
-    <div class="row"><button class="btn" type="button" data-x>Mengerti</button></div></div></div>`;
+    <div class="row"><button class="btn" type="button" data-x>Tutup panduan</button></div></div></div>`;
   const close = () => { host.innerHTML = ""; };
   host.querySelector("[data-x]").onclick = close;
   host.querySelector("[data-cp]").onclick = () => { const i = $("#dsLink"); i.select(); copyText(DS07_URL); };
@@ -495,8 +530,14 @@ function accountDialog(){
   host.querySelector(".dlg").addEventListener("keydown", e => { if (e.key === "Escape") close(); });
   host.querySelector("[data-x]").focus();
 }
-async function copyText(t){
-  try{ await navigator.clipboard.writeText(t); toast("Disalin."); }
+const IC_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>';
+function copiedFeedback(btn){
+  const svg = btn?.querySelector("svg"); if (!svg) return;
+  const old = svg.outerHTML; svg.outerHTML = IC_CHECK; btn.classList.add("is-copied");
+  setTimeout(() => { const now = btn.querySelector("svg"); if (now) now.outerHTML = old; btn.classList.remove("is-copied"); }, 1600);
+}
+async function copyText(t, btn){
+  try{ await navigator.clipboard.writeText(t); if (btn) copiedFeedback(btn); else toast("Disalin."); }
   catch{ toast("Tidak bisa menyalin otomatis — blok teksnya lalu salin manual."); }
 }
 
@@ -563,7 +604,7 @@ const plain = s => String(s).replace(/```[\s\S]*?```/g," (blok kode) ").replace(
 /* ===================== STATE ===================== */
 const S = {
   sample:null, db:null, user:null, uid:null, tts:null, dict:null, mcp:null, dl:null, limits:null,
-  storage:"memuat", mode: lsGet("ds07.mode","default"), webOn: lsGet("ds07.web", true), voiceOn: lsGet("ds07.voice", false),
+  storage:"memuat", rainOn: lsGet("ds07.rain", true), mode: lsGet("ds07.mode","default"), webOn: lsGet("ds07.web", true), voiceOn: lsGet("ds07.voice", false),
   convs:[], convId:null, mems:[], tab:"arc", isOwner:false,
   ops:{ok:false, config:null, katalog:null, reqs:[], reports:[]}, busy:false, ctl:null, pending:[], webState:"belum", dictating:false
 };
@@ -669,9 +710,13 @@ function renderSide(){
     : S.webState === "gagal" ? `<span><span class="dot warn"></span>Web: sambungkan Parallel Search</span>`
     : `<span><span class="dot ${S.webOn?"ok":"off"}"></span>Web: ${S.webOn?"siap":"mati"}</span>`;
   const acct = S.me ? `<span class="acct"><span><span class="dot ok"></span>Akun: <b>${esc(S.me.name || "tanpa nama")}</b>${S.isOwner ? " · pemilik" : ""}</span><button class="btn sm ghost" type="button" id="acctBtn">Ganti akun</button></span>` : "";
-  $("#foot").innerHTML = acct + ai + st + web + `<span>${S.mems.length} fragmen ingatan</span>`;
+  const rainCtl = reduced ? "" : `<span class="acct"><span>Hujan latar</span><button class="btn sm ghost" type="button" id="rainBtn" aria-pressed="${S.rainOn}">${S.rainOn ? "Jeda hujan" : "Nyalakan hujan"}</button></span>`;
+  $("#foot").innerHTML = acct + ai + st + web + `<span>${S.mems.length} fragmen ingatan</span>` + rainCtl;
 }
-$("#foot").addEventListener("click", e => { if (e.target.closest("#acctBtn")) accountDialog(); });
+$("#foot").addEventListener("click", e => {
+  if (e.target.closest("#acctBtn")) accountDialog();
+  if (e.target.closest("#rainBtn")){ S.rainOn = !S.rainOn; lsSet("ds07.rain", S.rainOn); $("#rain").hidden = !S.rainOn; if (S.rainOn) S.rainKick?.(); renderSide(); }
+});
 $("#pane").addEventListener("click", async e => {
   const o = e.target.closest("[data-open]"), d = e.target.closest("[data-del]"), dm = e.target.closest("[data-delmem]");
   if (o) { openConv(o.dataset.open); closeSide(); }
@@ -711,12 +756,31 @@ function renderLog(){
   const L = $("#logIn");
   const msgs = S.cur?.messages || [];
   if (!msgs.length){
-    L.innerHTML = `<section class="hello">
+    const enter = !S.entered && !reduced; S.entered = true;
+    const r = S.ops.reports?.[0];
+    const facts = [
+      `<span class="fact"><span class="dot ${S.sample?"ok":S.aiChecked?"warn":"off"}"></span><b>${S.sample?"Claude aktif":S.aiChecked?"AI tidak aktif":"Menyambung"}</b></span>`,
+      S.me ? `<span class="fact">Akun <b>${esc(S.me.name||"tanpa nama")}</b></span>` : "",
+      `<span class="fact"><b>${S.convs.length}</b> percakapan</span>`,
+      `<span class="fact"><b>${S.mems.length}</b> fragmen</span>`,
+      r ? `<button class="fact" type="button" data-rep="${esc(r.id)}">Laporan Ops <b>${esc(fmtDate(r.date))}</b></button>` : ""
+    ].join("");
+    const noAi = !S.sample && S.aiChecked;
+    const ex = L.querySelector(".hello");
+    if (ex){
+      // layar sambutan sudah tampil: perbarui faktanya saja, jangan ulang animasi masuk
+      ex.querySelector(".facts").innerHTML = facts;
+      const n = ex.querySelector(".notice"); if (n) n.hidden = !noAi;
+      return;
+    }
+    L.innerHTML = `<section class="hello${enter?" enter":""}" aria-labelledby="helloH">
+      <svg class="ava hero-ava" width="72" height="72" viewBox="0 0 100 100" aria-hidden="true">${AVA}</svg>
       <div class="eyebrow">DS-07 // ONLINE</div>
-      <h2>${esc(greeting())} Saya kembali.</h2>
-      <p>Asisten pribadimu. Tanya apa saja, lampirkan file atau gambar, minta cari di web, atau suruh saya mengingat hal penting tentangmu.</p>
-      ${!S.sample && S.aiChecked ? `<div class="notice">Inti AI hanya aktif saat halaman ini dibuka di claude.ai dan kamu mengizinkannya. Di sini kamu masih bisa melihat arsip dan ingatan.</div>` : ""}
-      <div class="sugg">${SUGG.map(([k,t]) => `<button type="button" data-sugg="${esc(t)}"><small>${esc(k)}</small>${esc(t)}</button>`).join("")}</div>
+      <h2 id="helloH"><span class="ln"><span>${esc(greeting())}</span></span><span class="ln"><span>Saya kembali.</span></span></h2>
+      <p class="up" style="--i:0">Asisten pribadimu. Tanya apa saja, lampirkan file atau gambar, minta cari di web, atau suruh saya mengingat hal penting tentangmu.</p>
+      <div class="facts up" style="--i:1">${facts}</div>
+      <div class="notice up" style="--i:2" ${noAi?"":"hidden"}>Inti AI hanya aktif saat halaman ini dibuka di claude.ai dan kamu mengizinkannya. Di sini kamu masih bisa melihat arsip dan ingatan.</div>
+      <div class="sugg up" style="--i:3">${SUGG.map(([k,t]) => `<button type="button" data-sugg="${esc(t)}"><small>${esc(k)}</small>${esc(t)}</button>`).join("")}</div>
     </section>`;
     return;
   }
@@ -768,8 +832,9 @@ function scrollEnd(force){
   if (force || near) L.scrollTop = L.scrollHeight;
 }
 $("#logIn").addEventListener("click", async e => {
+  const rp = e.target.closest("[data-rep]"); if (rp){ openReport(rp.dataset.rep); return; }
   const sg = e.target.closest("[data-sugg]"); if (sg){ $("#inp").value = sg.dataset.sugg; autoGrow(); $("#inp").focus(); return; }
-  const cp = e.target.closest("[data-copy]"); if (cp){ copyText(cp.parentElement.querySelector("code").textContent); return; }
+  const cp = e.target.closest("[data-copy]"); if (cp){ copyText(cp.parentElement.querySelector("code").textContent, cp); return; }
   const keep = e.target.closest("[data-keep]"), skip = e.target.closest("[data-skip]");
   if (keep || skip){
     const [mi, k] = (keep||skip).dataset[keep?"keep":"skip"].split(":").map(Number);
@@ -782,7 +847,7 @@ $("#logIn").addEventListener("click", async e => {
   if (oc){ const [i,k] = oc.dataset.opsCancel.split(":").map(Number); S.cur.messages[i].opsDrafts[k].cancelled = true; await Store.saveConv(S.cur); renderLog(); return; }
   const a = e.target.closest("[data-act]"); if (!a) return;
   const m = S.cur.messages[+a.dataset.i];
-  if (a.dataset.act === "copy") copyText(m.text);
+  if (a.dataset.act === "copy") copyText(m.text, a);
   if (a.dataset.act === "speak") speak(m.text);
   if (a.dataset.act === "dl") saveFile(m.text);
   if (a.dataset.act === "retry") retry(+a.dataset.i);
@@ -914,7 +979,7 @@ function opsPane(){
   const rep = r ? `<div class="rep"><b>Laporan ${esc(fmtDate(r.date))}</b><p>${esc(r.ringkas || "")}</p><div class="row" style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" type="button" data-rep="${esc(r.id)}">Buka laporan</button></div></div>`
     : `<div class="empty-note">Belum ada laporan. Laporan otomatis dibuat tiap pagi hari kerja.</div>`;
   const reqs = S.ops.reqs.slice(0, 12).map(q => { const [l,c] = OPS_ST[q.status] || [q.status||"?",""]; return `<div class="req"><span class="t" title="${esc(q.pesan||"")}">${esc(q.data?.nama || "Project")}</span><span class="st ${c}">${esc(l)}</span></div>`; }).join("");
-  return `<div class="ops-h"><span>Laporan Design Ops</span><button class="btn sm ghost" id="repNow" type="button" ${canFire()?"":"disabled"} ${S.isOwner?"":'title="Hanya dari akun pemilik"'}>Minta sekarang</button></div>${rep}
+  return `<div class="ops-h"><span>Laporan Design Ops</span><button class="btn sm ghost" id="repNow" type="button" ${canFire()?"":"disabled"} ${S.isOwner?"":'title="Hanya dari akun pemilik"'}>Buat laporan</button></div>${rep}
     ${S.ops.reports.length > 1 ? `<div class="ops-h"><span>Arsip laporan</span></div>${S.ops.reports.slice(1,8).map(x=>`<div class="req"><button class="btn sm ghost" type="button" data-rep="${esc(x.id)}" style="justify-content:flex-start">${esc(fmtDate(x.date))}</button><span></span></div>`).join("")}` : ""}
     <div class="ops-h" style="margin-top:12px"><span>Input dari DS-07</span></div>${reqs || `<div class="empty-note">Belum ada. Ketik di chat, mis. “PTK - Flyer HSSE, PIC: Diddin, deadline hari ini, 1 slide”.</div>`}`;
 }
@@ -1060,7 +1125,7 @@ function opsTools(m){
       description:"Ambil laporan Design Ops terbaru (dibuat otomatis tiap pagi): deadline, terlambat, beban PIC, status project. Mengembalikan {tanggal, isi}.",
       execute(){
         const r = S.ops.reports[0];
-        if (!r) return "Belum ada laporan. Sarankan pengguna menekan 'Minta sekarang' di tab Ops.";
+        if (!r) return "Belum ada laporan. Sarankan pengguna menekan 'Buat laporan' di tab Ops.";
         return {tanggal:r.date, isi:String(r.md||"").slice(0, 14000)};
       }}
   ];
@@ -1285,21 +1350,12 @@ function rain(){
       x.lineWidth = p.r ? 1.2 : 1; x.beginPath(); x.moveTo(p.x, p.y); x.lineTo(p.x - p.l*.12, p.y + p.l); x.stroke();
       if (!reduced){ p.y += p.v; p.x -= p.v*.12; if (p.y > H){ p.y = -p.l; p.x = Math.random()*W*1.1; } }
     }
-    if (!reduced && !document.hidden) requestAnimationFrame(draw);
+    if (!reduced && !document.hidden && S.rainOn) requestAnimationFrame(draw);
   };
+  S.rainKick = () => requestAnimationFrame(draw);
+  $("#rain").hidden = !S.rainOn;
   draw();
-  document.addEventListener("visibilitychange", () => { if (!document.hidden && !reduced) requestAnimationFrame(draw); });
-}
-
-/* ===================== BOOT ===================== */
-async function boot(){
-  const b = $("#boot");
-  if (reduced){ b.remove(); return; }
-  const tx = $("#bootTx");
-  const lines = ["DS-07 // MEMBANGUN ULANG KESADARAN", "INGATAN: TERHUBUNG", "SAYA KEMBALI."];
-  let skip = false; b.addEventListener("click", () => skip = true, {once:true});
-  for (const l of lines){ if (skip) break; tx.textContent = l; await sleep(380); }
-  b.classList.add("out"); setTimeout(() => b.remove(), 500);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && !reduced && S.rainOn) requestAnimationFrame(draw); });
 }
 
 /* ===================== START ===================== */
@@ -1308,7 +1364,7 @@ const use = name => {
   return Promise.race([window.claude.use(name).catch(()=>null), sleep(12000).then(()=>null)]);
 };
 async function init(){
-  applyMode(); syncToggles(); S.convsLoading = true; renderSide(); renderLog(); rain(); boot();
+  applyMode(); syncToggles(); S.convsLoading = true; renderSide(); renderLog(); rain();
   const [sample, db, user, tts, dict, mcp, dl] = await Promise.all(["sample","db","user","tts","dictation","mcp","downloads"].map(use));
   Object.assign(S, {sample, db, user, tts, dict, mcp, dl, aiChecked:true});
   if (sample){ try{ S.limits = await sample.limits(); }catch{ S.limits = null; } }
