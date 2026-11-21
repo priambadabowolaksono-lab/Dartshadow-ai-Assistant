@@ -18,6 +18,7 @@ DS-07 adalah asisten AI serba bisa bergaya **DARTSHADOW**: HUD gelap, hujan neon
 | Lampiran | Gambar (dianalisis Claude), PDF, dan file teks/kode/CSV |
 | Suara | Dikte (Chrome / aplikasi desktop Claude) dan jawaban dibacakan |
 | Unduh | Simpan jawaban sebagai `.md` |
+| Jembatan ChatGPT | Tombol **GPT** membuka chatgpt.com di tab baru dengan pertanyaan sudah terisi, memakai akun ChatGPT-mu sendiri. Jawabannya kamu tempel kembali lewat **Tempel jawaban GPT**, lalu DS-07 bisa membandingkannya. Tanpa API dan tanpa token |
 
 ## Multi-akun
 

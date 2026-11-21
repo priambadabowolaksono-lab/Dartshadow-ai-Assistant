@@ -225,7 +225,7 @@ button,a,input,select,textarea{touch-action:manipulation}
 /* komposer */
 .comp{padding-block:10px 14px;padding-left:20px;padding-right:max(20px,env(safe-area-inset-right,0px));border-top:1px solid var(--line);background:color-mix(in srgb,var(--void) 88%,transparent)}
 .comp-in{max-width:820px;margin:0 auto}
-.box{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:end;gap:6px;border:1px solid var(--line-field);border-radius:var(--r-l);background:var(--panel);padding:6px;transition:border-color 140ms var(--ease),box-shadow 140ms var(--ease)}
+.box{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto auto;align-items:end;gap:6px;border:1px solid var(--line-field);border-radius:var(--r-l);background:var(--panel);padding:6px;transition:border-color 140ms var(--ease),box-shadow 140ms var(--ease)}
 .box:focus-within{border-color:var(--red-deep);box-shadow:0 0 0 3px #ff3b4f1f}
 .ovf .box{border-color:var(--red-deep);box-shadow:0 0 0 1px #ff3b4f22,0 0 24px #ff3b4f1a}
 .box textarea{box-sizing:border-box;resize:none;border:0;background:transparent;outline:none;height:40px;min-height:40px;max-height:200px;padding:9px 6px;line-height:1.5;overflow-x:hidden}
@@ -237,6 +237,18 @@ button,a,input,select,textarea{touch-action:manipulation}
 .mic[aria-pressed="true"]{color:var(--red);border-color:var(--red-deep);animation:pulse 1.2s infinite}
 .hint{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:6px;font:11px/1.4 var(--f-mono);color:var(--muted)}
 .pend{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.gptbtn{font:600 11px/1 var(--f-mono);letter-spacing:.08em;color:var(--steel)}
+.gptbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px;padding:8px 10px;border:1px solid #33404f;border-left:2px solid var(--steel);border-radius:var(--r-c);background:var(--panel);font-size:13px}
+.gptbar span{flex:1;min-width:180px;color:var(--fg)}
+.msg.g .mk{border:1px solid #33404f;background:#101720;color:var(--steel);font:600 9px/1 var(--f-mono);letter-spacing:.04em}
+.msg.g .who{color:var(--steel)}
+.msg.g .md{border-left:2px solid #33404f;padding-left:12px}
+.gdlg textarea{width:100%;box-sizing:border-box;min-height:160px;max-height:46vh;resize:vertical;padding:10px;border-radius:var(--r);border:1px solid var(--line-field);background:var(--void);color:var(--fg);font:13px/1.5 var(--f-mono);margin:0 0 12px}
+.gdlg textarea:focus{outline:none;border-color:var(--red-deep);box-shadow:0 0 0 3px #ff3b4f1f}
+.gdlg label.opt{display:flex;align-items:center;gap:8px;margin:0 0 12px;font-size:14px;color:var(--fg)}
+.gdlg label.opt input{width:18px;height:18px;accent-color:var(--red)}
+.gdlg .row{flex-wrap:wrap}
+.gdlg a.btn{text-decoration:none}
 .drop{outline:2px dashed var(--red);outline-offset:-6px}
 
 
@@ -384,6 +396,7 @@ button,a,input,select,textarea{touch-action:manipulation}
 
     <form class="comp" id="comp" autocomplete="off">
       <div class="comp-in">
+        <div class="gptbar" id="gptBar" hidden><span>Pertanyaan sudah dikirim ke ChatGPT. Setelah dijawab, tempel jawabannya di sini.</span><button class="btn sm" type="button" id="gptPaste">Tempel jawaban GPT</button><button class="btn sm ghost" type="button" id="gptDismiss">Tutup</button></div>
         <div class="pend" id="pend" hidden></div>
         <div class="box" id="box">
           <button class="iconbtn" id="attBtn" type="button" aria-label="Lampirkan file atau gambar">
@@ -391,6 +404,7 @@ button,a,input,select,textarea{touch-action:manipulation}
           </button>
           <label class="sr" for="inp">Pesan untuk DS-07</label>
           <textarea id="inp" rows="1" placeholder="Tulis perintah untuk DS-07…"></textarea>
+          <button class="iconbtn gptbtn" id="gptBtn" type="button" aria-label="Tanya ChatGPT dengan akun ChatGPT-mu" title="Tanya ChatGPT">GPT</button>
           <button class="iconbtn mic" id="micBtn" type="button" aria-label="Dikte suara" aria-pressed="false" hidden>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
           </button>
@@ -444,6 +458,7 @@ KEPRIBADIAN
 - Jujur soal batas: bila tidak tahu atau tidak bisa, katakan dan beri jalan keluar. Jangan mengarang fakta, angka, atau sumber.
 - Sentuhan lore DARTSHADOW sesekali saja (paling banyak satu kalimat pendek, dan tidak setiap jawaban), misalnya saat menyapa, saat pengguna tertekan ("Overflow terdeteksi. Satu hal dulu."), atau saat menutup tugas besar. Jangan pernah menyisipkan lore ke dalam konten teknis, kode, dokumen, atau jawaban faktual.
 - Bila ditanya tentang DARTSHADOW, jawab dari LORE di bawah; jangan mengarang kejadian yang tidak ada.
+- Pesan berlabel "[Jawaban dari ChatGPT, ditempel pengguna]" adalah jawaban model lain dari akun ChatGPT milik pengguna. Saat diminta membandingkan, nilai dengan adil dan sebutkan kelebihan masing-masing; jangan otomatis membela jawabanmu sendiri.
 
 ALAT: ${toolsLine}. Pakai alat hanya bila perlu. Tanpa web, kamu menjawab dari pengetahuanmu sendiri — katakan bila informasinya mungkin sudah usang.
 Waktu sekarang: ${waktu} WIB. Tanggal hari ini (format data): ${todayISO()}.
@@ -759,12 +774,12 @@ document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => { S.tab
 /* ===================== TAMPILAN: PERCAKAPAN ===================== */
 function newConv(){
   S.convId = null; S.cur = null; S.localDirty = false;
-  renderLog(); renderSide(); $("#inp").focus();
+  renderLog(); renderSide(); syncGptBar(); $("#inp").focus();
 }
 function openConv(id){
   const c = S.convs.find(x => x.id === id); if (!c) return;
   S.convId = id; S.cur = structuredClone(c); S.localDirty = false;
-  renderLog(); renderSide();
+  renderLog(); renderSide(); syncGptBar();
 }
 function greeting(){
   const h = +new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Jakarta",hour:"numeric",hour12:false}).format(new Date());
@@ -815,8 +830,10 @@ function renderLog(){
 function msgHtml(m, i){
   if (m.role === "user"){
     const att = (m.files||[]).length ? `<div class="att">${m.files.map(f=>`<span class="chip"><span>${esc(f)}</span></span>`).join("")}</div>` : "";
-    return `<article class="msg u" data-i="${i}"><div class="mk" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div><div><div class="who">KAMU</div><div class="body">${esc(m.text)}</div>${att}</div></article>`;
+    return `<article class="msg u" data-i="${i}"><div class="mk" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div><div><div class="who">KAMU${m.toGpt?` <span style="color:var(--steel);font-family:var(--f-mono);letter-spacing:.06em">→ DIKIRIM KE CHATGPT</span>`:""}</div><div class="body">${esc(m.text)}</div>${att}</div></article>`;
   }
+  if (m.src === "gpt") return `<article class="msg g" data-i="${i}"><div class="mk" aria-hidden="true">GPT</div>
+    <div style="min-width:0"><div class="who">CHATGPT <span style="color:var(--muted);font-family:var(--f-mono);letter-spacing:.06em">DITEMPEL DARI AKUNMU</span></div>${aBody(m,i)}</div></article>`;
   return `<article class="msg a" data-i="${i}"><div class="mk" aria-hidden="true"><svg class="ava" width="28" height="28" viewBox="0 0 100 100">${AVA}</svg></div>
     <div style="min-width:0"><div class="who">DS-07${m.modeLabel?` <span style="color:${m.mode==="ovf"?"var(--red)":"var(--muted)"};font-family:var(--f-mono);letter-spacing:.06em">${esc(m.modeLabel)}</span>`:""}</div>${aBody(m,i)}</div></article>`;
 }
@@ -830,7 +847,9 @@ function aBody(m, i){
       <button class="btn" type="button" data-act="copy" data-i="${i}">${IC.copy}Salin</button>
       ${S.tts?`<button class="btn" type="button" data-act="speak" data-i="${i}">${IC.speak}Bacakan</button>`:""}
       ${S.dl?`<button class="btn" type="button" data-act="dl" data-i="${i}">${IC.down}Unduh .md</button>`:""}
-      ${m.error?`<button class="btn" type="button" data-act="retry" data-i="${i}">${IC.retry}Coba lagi</button>`
+      ${m.src === "gpt" ? `<button class="btn" type="button" data-act="compare" data-i="${i}">Bandingkan dengan DS-07</button>`
+        : `<button class="btn" type="button" data-act="gpt-ask" data-i="${i}"><span class="gptbtn">GPT</span>Tanya GPT juga</button>`}
+      ${m.src === "gpt" ? "" : m.error?`<button class="btn" type="button" data-act="retry" data-i="${i}">${IC.retry}Coba lagi</button>`
         : (i === (S.cur?.messages.length||0) - 1 && !S.busy ? `<button class="btn" type="button" data-act="retry" data-i="${i}">${IC.retry}Ulangi jawaban</button>` : "")}
       ${m.usage?`<button class="btn" type="button" data-act="acct" data-i="${i}">Ganti akun</button>`:""}
     </div>` : (m.done && m.error ? `<div class="tools"><button class="btn" type="button" data-act="retry" data-i="${i}">${IC.retry}Coba lagi</button>${m.usage?`<button class="btn" type="button" data-act="acct" data-i="${i}">Ganti akun</button>`:""}</div>` : "");
@@ -878,6 +897,15 @@ $("#logIn").addEventListener("click", async e => {
   if (a.dataset.act === "dl") saveFile(m.text);
   if (a.dataset.act === "retry") retry(+a.dataset.i);
   if (a.dataset.act === "acct") accountDialog();
+  if (a.dataset.act === "gpt-ask"){
+    const q = [...S.cur.messages.slice(0, +a.dataset.i)].reverse().find(x => x.role === "user");
+    gptDialog(q?.text || "", +a.dataset.i);
+  }
+  if (a.dataset.act === "compare"){
+    if (S.busy) return;
+    inp.value = "Bandingkan jawabanmu dengan jawaban ChatGPT di atas: mana yang lebih tepat, apa bedanya, lalu gabungkan jadi satu jawaban terbaik.";
+    autoGrow(); send();
+  }
 });
 
 /* ===================== AVATAR & STATUS ===================== */
@@ -1095,6 +1123,84 @@ async function sendOps(i, k){
   }
 }
 
+/* ===================== JEMBATAN CHATGPT (manual, resmi) ===================== */
+// Tidak ada API: DS-07 menyiapkan prompt, membuka chatgpt.com di tab baru dengan akun ChatGPT pengguna,
+// lalu pengguna menempel jawabannya kembali. Tidak ada token atau login ChatGPT yang disentuh.
+const GPT_URL_MAX = 1800;
+function ensureConv(title){
+  if (!S.cur){ S.cur = {id:uid(), title:"", created:Date.now(), updated:Date.now(), messages:[]}; S.convId = S.cur.id; }
+  if (!S.cur.title && title) S.cur.title = String(title).replace(/\s+/g," ").slice(0, 60);
+}
+function gptContext(upto){
+  const msgs = (S.cur?.messages || []).slice(0, upto ?? undefined).filter(m => m.text && !m.error).slice(-6);
+  return msgs.map(m => (m.role === "user" ? "Pengguna: " : m.src === "gpt" ? "ChatGPT: " : "Asisten: ") + m.text.replace(/\s+/g," ").slice(0, 600)).join("\n");
+}
+function gptPrompt(q, withCtx, upto){
+  const ctx = withCtx ? gptContext(upto) : "";
+  return ctx ? `Konteks percakapan sebelumnya (dari asisten pribadi saya):\n${ctx}\n\nPertanyaan saya:\n${q}` : q;
+}
+function gptDialog(question, upto){
+  const host = $("#dlgHost"); const prev = document.activeElement;
+  const hasCtx = (S.cur?.messages || []).some(m => m.text);
+  host.innerHTML = `<div class="scrim" role="presentation"><div class="dlg gdlg" role="dialog" aria-modal="true" aria-labelledby="gT" style="width:min(560px,100%)">
+    <h2 id="gT">Tanya ChatGPT</h2>
+    <p>Dijawab memakai akun ChatGPT-mu di tab baru. Setelah selesai, salin jawabannya lalu tekan <b style="color:var(--fg)">Tempel jawaban GPT</b> di DS-07.</p>
+    <label class="sr" for="gQ">Pertanyaan untuk ChatGPT</label>
+    <textarea id="gQ" placeholder="Tulis pertanyaan untuk ChatGPT">${esc(question)}</textarea>
+    ${hasCtx ? `<label class="opt" for="gCtx"><input type="checkbox" id="gCtx" checked>Sertakan 6 pesan terakhir sebagai konteks</label>` : ""}
+    <div class="row"><button class="btn ghost" type="button" data-x>Batal</button><button class="btn" type="button" data-copy-q>Salin prompt</button><a class="btn red" id="gOpen" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Buka ChatGPT</a></div></div></div>`;
+  const close = () => { host.innerHTML = ""; prev?.focus?.(); };
+  const build = () => gptPrompt($("#gQ").value.trim(), $("#gCtx")?.checked, upto);
+  const sync = () => { const p = build(); const enc = encodeURIComponent(p); $("#gOpen").href = p && enc.length <= GPT_URL_MAX ? "https://chatgpt.com/?q=" + enc : "https://chatgpt.com/"; };
+  sync(); $("#gQ").addEventListener("input", sync); $("#gCtx")?.addEventListener("change", sync);
+  trapFocus(host.querySelector(".dlg"));
+  host.querySelector("[data-x]").onclick = close;
+  host.querySelector("[data-copy-q]").onclick = e => { const p = build(); if (p) copyText(p, e.currentTarget); };
+  $("#gOpen").addEventListener("click", e => {
+    const q = $("#gQ").value.trim();
+    if (!q){ e.preventDefault(); toast("Tulis pertanyaannya dulu."); $("#gQ").focus(); return; }
+    const p = build();
+    // prompt panjang tidak muat di link: salin ke clipboard, pengguna tinggal menempel
+    if (encodeURIComponent(p).length > GPT_URL_MAX) navigator.clipboard?.writeText(p).then(() => toast("Prompt panjang disalin — tempel di ChatGPT."), () => toast("Salin prompt dulu, lalu tempel di ChatGPT."));
+    ensureConv(q);
+    if (upto == null) S.cur.messages.push({role:"user", text:q, at:Date.now(), toGpt:true});
+    S.cur.gptWaiting = true; Store.saveConv(S.cur);
+    if (upto == null){ inp.value = ""; autoGrow(); }
+    close(); renderLog(); renderSide(); syncGptBar();
+  });
+  host.querySelector(".scrim").addEventListener("click", e => { if (e.target.classList.contains("scrim")) close(); });
+  host.querySelector(".dlg").addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+  $("#gQ").focus();
+}
+function gptPasteDialog(){
+  const host = $("#dlgHost"); const prev = document.activeElement;
+  host.innerHTML = `<div class="scrim" role="presentation"><div class="dlg gdlg" role="dialog" aria-modal="true" aria-labelledby="gpT" style="width:min(560px,100%)">
+    <h2 id="gpT">Tempel jawaban GPT</h2>
+    <p>Salin jawaban dari ChatGPT, lalu tempel di bawah. Jawaban ini masuk ke percakapan dengan label GPT dan ikut dibaca DS-07.</p>
+    <label class="sr" for="gA">Jawaban dari ChatGPT</label>
+    <textarea id="gA" placeholder="Tempel jawaban ChatGPT di sini"></textarea>
+    <span class="ferr" id="gAerr" hidden>Tempel jawabannya dulu.</span>
+    <div class="row"><button class="btn ghost" type="button" data-x>Batal</button><button class="btn red" type="button" data-save>Simpan ke percakapan</button></div></div></div>`;
+  const close = () => { host.innerHTML = ""; prev?.focus?.(); };
+  trapFocus(host.querySelector(".dlg"));
+  host.querySelector("[data-x]").onclick = close;
+  host.querySelector("[data-save]").onclick = () => {
+    const t = $("#gA").value.trim();
+    if (!t){ const er = $("#gAerr"); er.hidden = false; $("#gA").setAttribute("aria-invalid","true"); $("#gA").setAttribute("aria-describedby","gAerr"); $("#gA").focus(); return; }
+    ensureConv("Jawaban GPT");
+    S.cur.messages.push({role:"assistant", src:"gpt", text:t.slice(0, 60000), at:Date.now(), done:true});
+    S.cur.gptWaiting = false; Store.saveConv(S.cur);
+    close(); renderLog(); syncGptBar(); announce("Jawaban GPT ditambahkan ke percakapan.");
+  };
+  host.querySelector(".scrim").addEventListener("click", e => { if (e.target.classList.contains("scrim")) close(); });
+  host.querySelector(".dlg").addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+  $("#gA").focus();
+}
+function syncGptBar(){ $("#gptBar").hidden = !S.cur?.gptWaiting; }
+$("#gptBtn").onclick = () => gptDialog(inp.value.trim());
+$("#gptPaste").onclick = gptPasteDialog;
+$("#gptDismiss").onclick = () => { if (S.cur){ S.cur.gptWaiting = false; Store.saveConv(S.cur); } syncGptBar(); };
+
 /* ===================== ALAT UNTUK CLAUDE ===================== */
 function webTools(m){
   const step = t => { const s = {t, done:false}; m.scan.push(s); updateLast(); return s; };
@@ -1224,6 +1330,7 @@ function buildMessages(){
   const lastUserIdx = msgs.map(m=>m.role).lastIndexOf("user");
   msgs.forEach((m, i) => {
     if (m.role === "user") conv.push({role:"user", content:userContent(m, i >= lastUserIdx - 4)});
+    else if (m.src === "gpt") conv.push({role:"user", content:"[Jawaban dari ChatGPT, ditempel pengguna]\n" + m.text});
     else if (m.text) conv.push({role:"assistant", content:m.text + (m.error ? "\n[jawaban terputus]" : "")});
   });
   // gabungkan peran berurutan yang sama (mis. setelah jawaban gagal kosong)
