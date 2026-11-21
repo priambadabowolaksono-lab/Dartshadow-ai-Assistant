@@ -100,6 +100,12 @@ a{color:var(--silver)}
 .dot.ok{background:var(--green);box-shadow:0 0 8px var(--green)}
 .dot.warn{background:var(--amber)}
 .dot.off{background:#4a4f5a}
+.acct{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px;color:var(--fg)}
+.acct b{font-weight:500}
+.acct .btn{min-height:28px;padding:0 8px;font:500 11px var(--f-mono)}
+.guide{margin:0 0 14px;padding-left:1.3em;color:var(--fg);font-size:14px;display:flex;flex-direction:column;gap:6px}
+.linkbox{display:flex;gap:6px;margin:0 0 14px}
+.linkbox input{flex:1;min-width:0;min-height:36px;padding:0 10px;border-radius:var(--r);border:1px solid var(--line);background:var(--void);color:var(--fg);font:12px var(--f-mono)}
 
 /* ---------- kanal utama ---------- */
 .main{display:flex;flex-direction:column;min-width:0;min-height:0}
@@ -468,6 +474,27 @@ function ask(title, msg, okLabel="Ya", danger=false){
     host.querySelector('[data-v="1"]').focus();
   });
 }
+const DS07_URL = "https://claude.ai/artifact/QGzoQoaj2BN1mbTtZDSWrB";
+function accountDialog(){
+  const host = $("#dlgHost");
+  host.innerHTML = `<div class="scrim" role="presentation"><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="acT" style="width:min(480px,100%)">
+    <h3 id="acT">Ganti akun Claude</h3>
+    <p>Sekarang memakai akun <b style="color:var(--fg)">${esc(S.me?.name || "ini")}</b>. DS-07 selalu memakai akun claude.ai yang sedang login di browser, dan kuota Claude diambil dari akun itu. Akun tidak bisa diganti dari dalam halaman ini.</p>
+    <ol class="guide">
+      <li>Sekali saja: dari akun pemilik, buka menu <b>Share</b> DS-07 lalu undang akun lainmu dengan akses yang bisa <b>memakai</b> (bukan hanya melihat).</li>
+      <li>Buka claude.ai dengan akun lain: pakai profil browser atau jendela lain yang login dengan akun itu, atau logout lalu login.</li>
+      <li>Buka link DS-07 di bawah dari akun tersebut.</li>
+    </ol>
+    <div class="linkbox"><label class="sr" for="dsLink">Link DS-07</label><input id="dsLink" readonly value="${DS07_URL}"><button class="btn sm" type="button" data-cp>Salin</button></div>
+    <p>Riwayat, ingatan, dan laporan Design Ops ikut di semua akun. Project yang dikirim dari akun selain pemilik masuk antrean dan diproses tiap jam (07.00–22.00 WIB).</p>
+    <div class="row"><button class="btn" type="button" data-x>Mengerti</button></div></div></div>`;
+  const close = () => { host.innerHTML = ""; };
+  host.querySelector("[data-x]").onclick = close;
+  host.querySelector("[data-cp]").onclick = () => { const i = $("#dsLink"); i.select(); copyText(DS07_URL); };
+  host.querySelector(".scrim").addEventListener("click", e => { if (e.target.classList.contains("scrim")) close(); });
+  host.querySelector(".dlg").addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+  host.querySelector("[data-x]").focus();
+}
 async function copyText(t){
   try{ await navigator.clipboard.writeText(t); toast("Disalin."); }
   catch{ toast("Tidak bisa menyalin otomatis — blok teksnya lalu salin manual."); }
@@ -547,10 +574,28 @@ const webSession = uid()+uid();
 // Mode lokal: browser ini saja (pratinjau, atau saat database tidak tersedia).
 const Store = {
   unsubs:[],
-  convCol(){ return S.db.collection(`data/users/${S.uid}/convs/items`); },
-  memCol(){ return S.db.collection(`data/users/${S.uid}/mem/items`); },
+  // Brankas bersama: dipakai semua akun claude.ai milik pengguna yang diundang ke DS-07
+  // (aturan db: brankas hanya untuk level "interact" ke atas).
+  convCol(){ return S.db.collection("brankas/utama/convs"); },
+  memCol(){ return S.db.collection("brankas/utama/mem"); },
+  async migrate(){
+    // Sekali per akun: salin riwayat lama dari folder privat akun ini ke brankas bersama.
+    try{
+      const metaRef = S.db.doc("brankas/meta");
+      const meta = await metaRef.get();
+      const done = meta.exists ? (meta.data().pindah || []) : [];
+      if (done.includes(S.uid)) return;
+      const oc = await S.db.collection(`data/users/${S.uid}/convs/items`).limit(200).get();
+      const om = await S.db.collection(`data/users/${S.uid}/mem/items`).limit(300).get();
+      for (const d of oc.docs){ const ref = this.convCol().doc(d.id); if (!(await ref.get()).exists) await ref.set(d.data()); }
+      for (const d of om.docs){ const ref = this.memCol().doc(d.id); if (!(await ref.get()).exists) await ref.set(d.data()); }
+      await metaRef.set({pindah:[...done, S.uid], at:Date.now()});
+      if (oc.size || om.size) toast(`Riwayat lama dipindahkan ke brankas bersama (${oc.size} percakapan, ${om.size} fragmen).`);
+    }catch{ /* dicoba lagi saat DS-07 dibuka berikutnya */ }
+  },
   start(){
     if (S.storage === "db"){
+      this.migrate();
       let gotC = false, gotM = false;
       const timer = setTimeout(()=>{ if (!gotC) { S.convsLoading = false; renderSide(); } }, 10000);
       this.unsubs.push(this.convCol().orderBy("updated","desc").limit(60).onSnapshot(snap=>{
@@ -617,14 +662,16 @@ function renderSide(){
     $("#memAdd").onclick = add;
     $("#memIn").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); add(); } };
   }
-  const st = S.storage === "db" ? `<span><span class="dot ok"></span>Tersimpan di akun claude.ai (privat)</span>`
+  const st = S.storage === "db" ? `<span><span class="dot ok"></span>Brankas bersama · semua akunmu</span>`
     : S.storage === "local" ? `<span><span class="dot warn"></span>Mode lokal — hanya di browser ini</span>` : `<span><span class="dot off"></span>Menyambung…</span>`;
   const ai = S.sample ? `<span><span class="dot ok"></span>Inti AI: Claude</span>` : `<span><span class="dot ${S.aiChecked?"warn":"off"}"></span>${S.aiChecked?"AI hanya aktif di claude.ai":"Menyambung inti AI…"}</span>`;
   const web = !S.mcp ? `<span><span class="dot off"></span>Web: tidak tersedia</span>`
     : S.webState === "gagal" ? `<span><span class="dot warn"></span>Web: sambungkan Parallel Search</span>`
     : `<span><span class="dot ${S.webOn?"ok":"off"}"></span>Web: ${S.webOn?"siap":"mati"}</span>`;
-  $("#foot").innerHTML = ai + st + web + `<span>${S.mems.length} fragmen ingatan</span>`;
+  const acct = S.me ? `<span class="acct"><span><span class="dot ok"></span>Akun: <b>${esc(S.me.name || "tanpa nama")}</b>${S.isOwner ? " · pemilik" : ""}</span><button class="btn sm ghost" type="button" id="acctBtn">Ganti akun</button></span>` : "";
+  $("#foot").innerHTML = acct + ai + st + web + `<span>${S.mems.length} fragmen ingatan</span>`;
 }
+$("#foot").addEventListener("click", e => { if (e.target.closest("#acctBtn")) accountDialog(); });
 $("#pane").addEventListener("click", async e => {
   const o = e.target.closest("[data-open]"), d = e.target.closest("[data-del]"), dm = e.target.closest("[data-delmem]");
   if (o) { openConv(o.dataset.open); closeSide(); }
@@ -696,7 +743,8 @@ function aBody(m, i){
       ${S.tts?`<button class="btn" type="button" data-act="speak" data-i="${i}">${IC.speak}Bacakan</button>`:""}
       ${S.dl?`<button class="btn" type="button" data-act="dl" data-i="${i}">${IC.down}Unduh .md</button>`:""}
       ${m.error?`<button class="btn" type="button" data-act="retry" data-i="${i}">${IC.retry}Coba lagi</button>`:""}
-    </div>` : (m.done && m.error ? `<div class="tools"><button class="btn" type="button" data-act="retry" data-i="${i}">${IC.retry}Coba lagi</button></div>` : "");
+      ${m.usage?`<button class="btn" type="button" data-act="acct" data-i="${i}">Ganti akun</button>`:""}
+    </div>` : (m.done && m.error ? `<div class="tools"><button class="btn" type="button" data-act="retry" data-i="${i}">${IC.retry}Coba lagi</button>${m.usage?`<button class="btn" type="button" data-act="acct" data-i="${i}">Ganti akun</button>`:""}</div>` : "");
   const ops = (m.opsDrafts||[]).map((d,k) => opsForm(d, i, k)).join("");
   return scan + body + ops + src + prop + tools;
 }
@@ -738,6 +786,7 @@ $("#logIn").addEventListener("click", async e => {
   if (a.dataset.act === "speak") speak(m.text);
   if (a.dataset.act === "dl") saveFile(m.text);
   if (a.dataset.act === "retry") retry(+a.dataset.i);
+  if (a.dataset.act === "acct") accountDialog();
 });
 
 /* ===================== AVATAR & STATUS ===================== */
@@ -834,11 +883,11 @@ $("#inp").addEventListener("paste", e => { const fs = [...(e.clipboardData?.file
 //  - "laporan": tiap pagi (atau saat diminta) membaca Design Ops lalu menulis ops/lap_<tanggal> + ops/katalog.
 // Koleksi "ops" hanya bisa dibaca/ditulis pemilik artifact (lihat aturan db saat publish).
 const opsReady = () => !!(S.ops.ok && S.ops.config);
-const canFire = () => !!(S.mcp && opsReady());
+const canFire = () => !!(S.mcp && opsReady() && S.isOwner);   // tugas cloud milik akun pemilik
 const OPS_ST = {antri:["Antri","run"], diproses:["Diproses","run"], selesai:["Masuk","ok"], gagal:["Gagal","bad"]};
 const Ops = {
   start(){
-    if (!S.db || !S.isOwner) { S.ops.ok = false; return; }
+    if (!S.db) { S.ops.ok = false; return; }
     S.db.collection("ops").limit(300).onSnapshot(snap => {
       const docs = snap.docs.map(d => ({id:d.id, ...d.data()}));
       S.ops.config = docs.find(d => d.id === "config") || null;
@@ -859,14 +908,13 @@ const Ops = {
 };
 function opsPane(){
   if (!S.db) return `<div class="empty-note">Design Ops hanya tersedia saat DS-07 dibuka di claude.ai.</div>`;
-  if (!S.isOwner) return `<div class="empty-note">Panel Design Ops hanya untuk pemilik DS-07.</div>`;
   if (!S.ops.ok) return `<div class="empty-note">Menyambung ke Design Ops…</div>`;
   if (!S.ops.config) return `<div class="empty-note">Jembatan Design Ops belum diatur. Minta Claude menyiapkan tugas cloud “input” dan “laporan”.</div>`;
   const r = S.ops.reports[0];
   const rep = r ? `<div class="rep"><b>Laporan ${esc(fmtDate(r.date))}</b><p>${esc(r.ringkas || "")}</p><div class="row" style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" type="button" data-rep="${esc(r.id)}">Buka laporan</button></div></div>`
     : `<div class="empty-note">Belum ada laporan. Laporan otomatis dibuat tiap pagi hari kerja.</div>`;
   const reqs = S.ops.reqs.slice(0, 12).map(q => { const [l,c] = OPS_ST[q.status] || [q.status||"?",""]; return `<div class="req"><span class="t" title="${esc(q.pesan||"")}">${esc(q.data?.nama || "Project")}</span><span class="st ${c}">${esc(l)}</span></div>`; }).join("");
-  return `<div class="ops-h"><span>Laporan Design Ops</span><button class="btn sm ghost" id="repNow" type="button" ${canFire()?"":"disabled"}>Minta sekarang</button></div>${rep}
+  return `<div class="ops-h"><span>Laporan Design Ops</span><button class="btn sm ghost" id="repNow" type="button" ${canFire()?"":"disabled"} ${S.isOwner?"":'title="Hanya dari akun pemilik"'}>Minta sekarang</button></div>${rep}
     ${S.ops.reports.length > 1 ? `<div class="ops-h"><span>Arsip laporan</span></div>${S.ops.reports.slice(1,8).map(x=>`<div class="req"><button class="btn sm ghost" type="button" data-rep="${esc(x.id)}" style="justify-content:flex-start">${esc(fmtDate(x.date))}</button><span></span></div>`).join("")}` : ""}
     <div class="ops-h" style="margin-top:12px"><span>Input dari DS-07</span></div>${reqs || `<div class="empty-note">Belum ada. Ketik di chat, mis. “PTK - Flyer HSSE, PIC: Diddin, deadline hari ini, 1 slide”.</div>`}`;
 }
@@ -894,6 +942,7 @@ function opsForm(d, i, k){
     const st = q?.status || "antri"; const [l,c] = OPS_ST[st] || [st,""];
     const msg = st === "selesai" ? `Project “${esc(d.v.nama)}” sudah masuk Design Ops${q?.pic ? ` dengan PIC ${esc(q.pic)}` : ""}.`
       : st === "gagal" ? `Tidak masuk: ${esc(q?.pesan || "alasan tidak diketahui")}`
+      : st === "antri" && !q?.dipicu ? "Dalam antrean. Tugas antrean memprosesnya paling lambat dalam 1 jam (07.00–22.00 WIB)."
       : "Tugas cloud sedang memprosesnya, biasanya 1–3 menit. Kamu boleh menutup halaman ini.";
     return `<div class="opsf"><span class="lbl">Design Ops · ${esc(d.v.nama)}</span><div class="row"><span class="st ${c}">${esc(l)}</span><span class="res">${msg}</span></div></div>`;
   }
@@ -911,7 +960,7 @@ function opsForm(d, i, k){
       <label for="${id("prio")}">Prioritas<select id="${id("prio")}" data-f="prio">${["","Sedang","Tinggi"].map(p=>`<option value="${p}" ${p===v.prio?"selected":""}>${p||"Normal"}</option>`).join("")}</select></label>
       <label class="w" for="${id("catatan")}">Catatan<input id="${id("catatan")}" data-f="catatan" value="${esc(v.catatan)}" maxlength="400"></label>
     </div>
-    <div class="row"><button class="btn red sm" type="button" data-ops-send="${i}:${k}" ${canFire()?"":"disabled"}>Kirim ke Design Ops</button><button class="btn ghost sm" type="button" data-ops-cancel="${i}:${k}">Batal</button>${canFire()?"":`<span class="res" style="color:var(--muted)">Jembatan belum aktif di tampilan ini.</span>`}</div></div>`;
+    <div class="row"><button class="btn red sm" type="button" data-ops-send="${i}:${k}" ${opsReady()?"":"disabled"}>${canFire() ? "Kirim ke Design Ops" : "Kirim ke antrean"}</button><button class="btn ghost sm" type="button" data-ops-cancel="${i}:${k}">Batal</button>${canFire() ? "" : `<span class="res" style="color:var(--muted)">${S.isOwner ? "Pemicu langsung tidak tersedia; masuk antrean tiap jam." : "Dari akun ini project masuk antrean dan diproses tiap jam."}</span>`}</div></div>`;
 }
 function datalists(){
   const K = S.ops.katalog || {};
@@ -926,13 +975,18 @@ async function sendOps(i, k){
   if (!/^\d{4}-\d{2}-\d{2}$/.test(d.v.deadline)){ toast("Isi deadline dulu."); return; }
   const reqId = "req_" + uid();
   const data = {nama:d.v.nama, bu:d.v.bu, pic:d.v.pic, deadline:d.v.deadline, kategori:d.v.kategori, slide:+d.v.slide || 0, prioritas:d.v.prio, catatan:d.v.catatan, tanggal:todayISO()};
-  try{ await S.db.collection("ops").doc(reqId).set({kind:"req", status:"antri", at:Date.now(), data, via:"DS-07"}); }
+  const direct = canFire();
+  try{ await S.db.collection("ops").doc(reqId).set({kind:"req", status:"antri", at:Date.now(), data, via:"DS-07", dipicu:direct}); }
   catch(e){ toast("Gagal mencatat permintaan."); return; }
   d.reqId = reqId; await Store.saveConv(S.cur); renderLog();
-  try{ await Ops.fire("input", `REQ_ID=${reqId}`); toast("Dikirim. Project akan masuk Design Ops dalam 1–3 menit."); }
-  catch(e){
-    toast(e.message);
-    try{ await S.db.collection("ops").doc(reqId).update({status:"gagal", pesan:e.message}); }catch{}
+  if (!direct){ toast("Masuk antrean. Diproses paling lambat 1 jam."); return; }
+  try{
+    await Ops.fire("input", `REQ_ID=${reqId}`);
+    toast("Dikirim. Project akan masuk Design Ops dalam 1–3 menit.");
+  }catch(e){
+    // pemicu langsung gagal → tetap di antrean; tugas antrean tiap jam yang mengambilnya
+    try{ await S.db.collection("ops").doc(reqId).update({dipicu:false}); }catch{}
+    toast(e.message + " Project tetap di antrean (diproses tiap jam).");
   }
 }
 
@@ -1138,6 +1192,7 @@ async function run(images){
   }catch(e){
     m.text = e?.text || m.text || "";
     m.error = sampleError(e);
+    if (e?.reason === "usage_limit") m.usage = true;
   }finally{
     m.done = true; m.scan.forEach(s=>s.done = true);
     S.busy = false; S.ctl = null; setBusyUi(false); setStatus("Siaga", false);
@@ -1152,7 +1207,7 @@ function sampleError(e){
   const c = e?.code;
   if (c === "cancelled") return "Dihentikan.";
   if (c === "not_granted") return "Akses ke Claude belum diizinkan. Izinkan dari menu izin artifact, lalu coba lagi.";
-  if (c === "rate_limited") return e.reason === "usage_limit" ? "Batas pemakaian akun claude.ai tercapai. Coba lagi nanti atau pakai mode Senyap." : "Terlalu banyak permintaan. Tunggu sebentar lalu coba lagi.";
+  if (c === "rate_limited") return e.reason === "usage_limit" ? `Kuota akun ${S.me?.name ? "“"+S.me.name+"” " : ""}sudah habis. Pindah ke akun claude.ai lain untuk lanjut — riwayatmu ikut.` : "Terlalu banyak permintaan. Tunggu sebentar lalu coba lagi.";
   if (c === "prompt_too_large") return "Percakapan atau lampiran terlalu panjang. Mulai percakapan baru atau kirim file yang lebih kecil.";
   if (c === "image_rejected" || c === "images_unavailable") return "Gambar tidak bisa diproses. Coba format PNG/JPG yang lebih kecil.";
   if (c === "refused") return "Permintaan ini tidak bisa saya jawab.";
@@ -1257,6 +1312,7 @@ async function init(){
   const [sample, db, user, tts, dict, mcp, dl] = await Promise.all(["sample","db","user","tts","dictation","mcp","downloads"].map(use));
   Object.assign(S, {sample, db, user, tts, dict, mcp, dl, aiChecked:true});
   if (sample){ try{ S.limits = await sample.limits(); }catch{ S.limits = null; } }
+  if (user){ try{ S.me = await user.me(); }catch{} }
   if (db && user){ try{ S.uid = await user.id(); }catch{} try{ S.isOwner = !!(await user.isOwner()); }catch{} }
   S.storage = db && S.uid ? "db" : "local";
   syncToggles(); setupDictation(); Store.start(); Ops.start(); renderLog(); renderSide();

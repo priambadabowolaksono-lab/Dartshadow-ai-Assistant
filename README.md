@@ -19,6 +19,15 @@ DS-07 adalah asisten AI serba bisa bergaya **DARTSHADOW**: HUD gelap, hujan neon
 | Suara | Dikte (Chrome / aplikasi desktop Claude) dan jawaban dibacakan |
 | Unduh | Simpan jawaban sebagai `.md` |
 
+## Multi-akun
+
+DS-07 selalu memakai akun claude.ai yang sedang login, dan kuota Claude diambil dari akun itu. Untuk berpindah akun:
+
+1. Dari akun pemilik, buka **Share** lalu undang akun lainmu dengan akses yang bisa memakai.
+2. Login ke claude.ai dengan akun itu (profil browser lain, atau logout lalu login), lalu buka link DS-07.
+
+Riwayat dan ingatan disimpan di **brankas bersama** (`brankas/utama/convs`, `brankas/utama/mem`), jadi semuanya ikut di semua akun. Riwayat lama per akun dipindahkan otomatis sekali. Tombol **Kirim** di akun selain pemilik memasukkan project ke antrean, karena hanya akun pemilik yang bisa memicu tugas cloud.
+
 ## Rencana berikutnya
 
 - **Tahap 2:** mode agen dengan alat (sandbox kode, grafik, pembuat file, tugas, pratinjau HTML).
@@ -31,9 +40,10 @@ Dua artifact tidak bisa saling membaca database. Karena itu jembatannya memakai 
 | Tugas cloud | Kapan jalan | Apa yang dikerjakan |
 |---|---|---|
 | Input project Design Ops | Dipicu DS-07 setiap kali kamu menekan **Kirim ke Design Ops** | Membaca `ops/req_…` di DS-07, mencocokkan PIC, menulis satu project baru ke Design Ops, lalu melaporkan statusnya balik |
+| Antrean project Design Ops | Tiap jam 07.13–22.13 WIB | Memproses permintaan yang masih `antri`, misalnya dari akun selain pemilik atau saat pemicu langsung gagal |
 | Laporan pagi Design Ops | Senin–Jumat 06:47 WIB, atau tombol **Minta sekarang** | Hanya membaca Design Ops, lalu menulis `ops/lap_<tanggal>` dan `ops/katalog` (PIC, BU, kategori) |
 
-- Koleksi `ops` di DS-07 hanya bisa dibaca dan ditulis pemilik artifact (aturan db saat publish).
+- Koleksi `ops` dan `brankas` bisa dibaca dan ditulis akun yang diundang dengan akses **memakai** (level `interact`). Akun dengan akses lihat saja tidak bisa membaca. **Bagikan DS-07 hanya ke akun-akunmu sendiri.**
 - `ops/config` berisi id tugas cloud dan id anggota pemilik di Design Ops. Isinya diatur lewat database, tidak ditulis di kode.
 - Prompt kedua tugas cloud tersimpan di akun claude.ai (Scheduled tasks), tidak ada di repo ini.
 
