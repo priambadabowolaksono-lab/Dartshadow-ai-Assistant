@@ -29,6 +29,17 @@ DS-07 selalu memakai akun claude.ai yang sedang login, dan kuota Claude diambil 
 
 Riwayat dan ingatan disimpan di **brankas bersama** (`brankas/utama/convs`, `brankas/utama/mem`), jadi semuanya ikut di semua akun. Riwayat lama per akun dipindahkan otomatis sekali. Tombol **Kirim** di akun selain pemilik memasukkan project ke antrean, karena hanya akun pemilik yang bisa memicu tugas cloud.
 
+## DS-07 di ChatGPT (Custom GPT)
+
+Folder `gpt/` berisi paket untuk membuat DS-07 sebagai Custom GPT di akun ChatGPT:
+
+- `INSTRUKSI.md`: persona, ditempel ke kolom Instructions (±3.000 karakter, batasnya 8.000)
+- `LORE_DARTSHADOW.md`: ringkasan lore, diunggah sebagai Knowledge
+- `avatar-ds07.png`: foto profil
+- `PANDUAN.md`: langkah pemasangan
+
+Simpan GPT-nya sebagai **Only me**.
+
 ## Rencana berikutnya
 
 - **Tahap 2:** mode agen dengan alat (sandbox kode, grafik, pembuat file, tugas, pratinjau HTML).
