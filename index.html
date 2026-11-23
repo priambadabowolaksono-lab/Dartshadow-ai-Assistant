@@ -314,6 +314,111 @@ button,a,input,select,textarea{touch-action:manipulation}
 @keyframes ignite{from{opacity:0;transform:scaleX(.4)}to{opacity:1;transform:none}}
 .hello .hero-ava .eye{transform-box:fill-box;transform-origin:50% 50%}
 
+/* ---------- PROTOKOL BRIEFING: pembuka bersuara ala HUD taktis ---------- */
+.bf{position:fixed;inset:0;z-index:55;display:grid;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden;color:var(--fg);
+  background:radial-gradient(110% 85% at 50% 44%,#1a070cf5 0%,#07080bf7 52%,#030305fa 100%);backdrop-filter:blur(14px) saturate(.6);
+  --core:min(30vmin,240px);
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);transition:opacity 600ms var(--ease)}
+.bf.out{opacity:0;pointer-events:none}
+.bf.shake .bf-stage{animation:bfShake 260ms steps(2) 1}
+.bf canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.bf::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,#ffffff05 0 1px,transparent 1px 3px);mix-blend-mode:overlay}
+.bf-top{position:relative;z-index:4;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;
+  padding-block:16px 0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  font:500 11px/1.6 var(--f-mono);letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
+.bf-top b{color:var(--red);font-weight:500}
+.bf-beat .n{display:block;font:700 clamp(18px,2.4vw,26px)/1.05 var(--f-disp);letter-spacing:.14em;color:var(--fg)}
+.bf-beat .n em{font-style:normal;color:var(--red)}
+.bf-meta{text-align:right}
+.bf-stage{position:relative;z-index:2;min-height:0}
+.bf-core{position:absolute;left:50%;top:50%;width:var(--core);height:var(--core);transform:translate(-50%,-50%) translate(var(--px,0px),var(--py,0px));
+  transition:transform 700ms var(--ease-enter),width 700ms var(--ease-enter),height 700ms var(--ease-enter)}
+.bf.bf-split{--core:min(22vmin,170px)}
+.bf-core svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 30px 60px #000)}
+.bf-core .eyes{transform:translate(calc(var(--ex,0) * 3px),calc(var(--ey,0) * 2px));transition:transform 220ms var(--ease)}
+.bf-core .eye{opacity:0;transform-box:fill-box;transform-origin:50% 50%}
+.bf-core.lit .eye{animation:ignite 900ms var(--ease-enter) both}
+.bf-core.lit .eye+.eye{animation-delay:110ms}
+.bf.talk .bf-core.lit .eye{animation:ignite 900ms var(--ease-enter) both,talk 420ms steps(3) infinite 900ms}
+@keyframes talk{0%{transform:scaleY(1)}33%{transform:scaleY(.55)}66%{transform:scaleY(.9)}100%{transform:scaleY(.7)}}
+@keyframes bfShake{0%{transform:translate(3px,-2px)}50%{transform:translate(-3px,2px)}100%{transform:none}}
+.bf-ring{position:absolute;inset:-14%;width:128%;height:128%;transform:rotate(-90deg)}
+.bf-ring circle{fill:none;stroke-width:1.5}
+.bf-ring .bg{stroke:#ffffff14}
+.bf-ring .fg{stroke:var(--red);stroke-linecap:round;filter:drop-shadow(0 0 6px var(--red))}
+.bf-wake{position:absolute;left:50%;top:calc(50% + var(--core) / 2 + 40px);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;width:min(420px,calc(100% - 32px))}
+.bf-wake button.hold{min-height:48px;padding:0 22px;border-radius:999px;border:1px solid var(--red-deep);background:#1c070c;color:#ffd9de;font:600 13px/1 var(--f-disp);letter-spacing:.2em;text-transform:uppercase;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none}
+.bf-wake button.hold:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+.bf-wake small{font:12px/1.5 var(--f-mono);color:var(--muted);letter-spacing:.06em}
+.bf-wake .ghostlink{background:none;border:0;color:var(--muted);text-decoration:underline;text-underline-offset:3px;font:12px var(--f-mono);min-height:44px;cursor:pointer}
+.bf-node{position:absolute;left:0;top:0;width:44px;height:44px;margin:-22px 0 0 -22px;display:grid;place-items:center;padding:0;border:0;background:none;color:inherit;cursor:pointer;
+  transform:translate(var(--x),var(--y)) scale(var(--s,0));transition:transform 600ms var(--ease-enter),opacity 300ms;--c:var(--silver)}
+.bf-node.on{--s:1}
+.bf-node i{width:10px;height:10px;border-radius:50%;background:var(--c);box-shadow:0 0 0 3px #07080b,0 0 12px var(--c);transition:transform 200ms var(--ease)}
+.bf-node.red{--c:var(--red)}.bf-node.amb{--c:var(--amber)}
+.bf-node.ping i{transform:scale(1.9)}
+.bf-node.lock i{transform:scale(1.6);box-shadow:0 0 0 3px #07080b,0 0 0 6px var(--c),0 0 22px var(--c)}
+.bf-node span{position:absolute;top:34px;left:50%;transform:translateX(-50%);white-space:nowrap;font:500 10px/1 var(--f-mono);letter-spacing:.1em;color:var(--muted);text-transform:uppercase;pointer-events:none}
+.bf-node:focus-visible{outline:2px solid var(--red);outline-offset:-4px;border-radius:50%}
+.bf-panel{position:absolute;z-index:3;right:max(4vw,16px);top:50%;transform:translate(24px,-50%);opacity:0;width:min(420px,40vw);
+  transition:opacity 400ms var(--ease),transform 600ms var(--ease-enter)}
+.bf-panel.on{opacity:1;transform:translate(0,-50%)}
+.bf-card{position:relative;padding:18px 20px;background:#0b0d12e6;border:1px solid #2a2f3a;backdrop-filter:blur(6px)}
+.bf-card::before,.bf-card::after{content:"";position:absolute;width:18px;height:18px;border:2px solid var(--c,var(--red))}
+.bf-card::before{left:-1px;top:-1px;border-right:0;border-bottom:0}
+.bf-card::after{right:-1px;bottom:-1px;border-left:0;border-top:0}
+.bf-card small{display:block;font:500 11px/1.4 var(--f-mono);letter-spacing:.16em;color:var(--c,var(--red));text-transform:uppercase;margin-bottom:8px}
+.bf-card h3{margin:0 0 4px;font:700 clamp(20px,2.2vw,28px)/1.1 var(--f-disp);letter-spacing:.03em;text-wrap:balance}
+.bf-card .bu{font:500 12px/1.4 var(--f-mono);letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.bf-card dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:14px 0 0;font-size:14px}
+.bf-card dt{color:var(--muted);font:12px/1.6 var(--f-mono);letter-spacing:.06em}
+.bf-card dd{margin:0}
+.bf-big{margin-top:14px;padding-top:12px;border-top:1px dashed #2a2f3a;font:500 12px/1 var(--f-mono);letter-spacing:.16em;color:var(--muted);text-transform:uppercase;display:flex;align-items:baseline;gap:10px}
+.bf-big b{font:700 44px/1 var(--f-disp);letter-spacing:0;color:var(--c,var(--red));font-variant-numeric:tabular-nums}
+.bf-load{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.bf-load .row{display:grid;grid-template-columns:minmax(70px,auto) 1fr auto;gap:10px;align-items:center;font-size:14px}
+.bf-load .cells{display:grid;grid-template-columns:repeat(8,1fr);gap:3px}
+.bf-load .cells i{height:12px;background:#1c2028;transform:scaleY(.3);transform-origin:bottom;transition:transform 300ms var(--ease-enter),background-color 300ms}
+.bf-load .cells i.f{background:var(--silver);transform:none}
+.bf-load .cells i.r{background:var(--red);transform:none;box-shadow:0 0 8px #ff3b4f88}
+.bf-load .n{font:12px var(--f-mono);color:var(--muted)}
+.bf-flow{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:6px;font-size:14px}
+.bf-flow h4{margin:0 0 6px;font:600 11px/1 var(--f-disp);letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+.bf-flow ul{margin:0;padding-left:1.1em}
+.bf-gold{--c:var(--gold)}
+.bf-gold li{font:600 clamp(16px,1.6vw,20px)/1.35 var(--f-body);color:#fff3cf;margin:0 0 10px;opacity:0;transform:translateY(10px);animation:rise-sm 520ms var(--ease-enter) forwards}
+.bf-gold li:nth-child(2){animation-delay:180ms}.bf-gold li:nth-child(3){animation-delay:360ms}
+.bf-gold ol{margin:0;padding-left:1.2em}
+.bf-gold li::marker{color:var(--gold)}
+.bf-flash{position:absolute;inset:0;z-index:3;pointer-events:none;background:radial-gradient(circle at 50% 46%,#ffd76a55,transparent 60%);opacity:0}
+.bf-flash.go{animation:bfFlash 900ms var(--ease) 1}
+@keyframes bfFlash{0%{opacity:0}12%{opacity:1}100%{opacity:0}}
+.bf-end{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.bf-end .btn{min-height:44px}
+.bf-bottom{position:relative;z-index:4;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end;
+  padding-block:0 16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.bf-sub{max-width:760px;justify-self:center;grid-column:1/-1;text-align:center;font:500 clamp(15px,1.5vw,19px)/1.5 var(--f-body);color:#f2efe9;text-wrap:balance;min-height:3em;
+  text-shadow:0 2px 12px #000}
+.bf-sub .who{display:block;font:500 11px/1 var(--f-mono);letter-spacing:.2em;color:var(--red);margin-bottom:6px}
+.bf-ctrl{grid-column:1/-1;justify-self:center;display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.bf-ctrl .btn{min-height:44px;background:#0d0f14cc;font:500 12px var(--f-mono);letter-spacing:.06em}
+.bf-ctrl .btn[aria-pressed="false"]{color:var(--muted)}
+.bf-ctrl kbd{font:11px var(--f-mono);color:var(--muted);border:1px solid #2a2f3a;border-radius:3px;padding:1px 4px}
+@media (max-width:760px){
+  .bf-panel{left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));top:auto;bottom:4px;width:auto;max-height:calc(62% - 8px);overflow:auto;transform:translateY(24px)}
+  .bf-panel.on{transform:none}
+  .bf.bf-split{--core:min(24vmin,110px)}
+  .bf.bf-split .bf-core{top:20%}
+  .bf-card{padding:14px 16px}
+  .bf-big b{font-size:34px}
+  .bf-end{display:grid;grid-template-columns:1fr 1fr}
+  .bf-sub{font-size:14px;min-height:2.6em}
+  .bf-ctrl .btn{padding:0 10px}
+  .bf-flow{grid-template-columns:1fr}
+  .bf-ctrl kbd{display:none}
+  .bf-meta{display:none}
+}
+
 /* ---------- target sentuh 44px di layar sentuh dan HP ---------- */
 @media (pointer:coarse),(max-width:860px){
   .box textarea,.memadd input,.opsf input,.opsf select,.linkbox input{font-size:16px}   /* cegah zoom otomatis iOS */
@@ -380,6 +485,10 @@ button,a,input,select,textarea{touch-action:manipulation}
         <button type="button" data-m="ovf" aria-pressed="false" title="Model terkuat, penalaran mendalam">Overflow</button>
       </div>
       <div class="toggles">
+        <button class="tg" id="bfBtn" type="button" hidden title="Putar briefing Design Ops bersuara">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4z" fill="currentColor"/></svg>
+          <span class="lab">Briefing</span>
+        </button>
         <button class="tg" id="webTg" type="button" aria-pressed="true" title="Izinkan DS-07 mencari di web">
           <span class="dot"></span><span class="lab">Web</span>
         </button>
@@ -750,10 +859,13 @@ function renderSide(){
     : `<span><span class="dot ${S.webOn?"ok":"off"}"></span>Web: ${S.webOn?"siap":"mati"}</span>`;
   const acct = S.me ? `<span class="acct"><span><span class="dot ok"></span>Akun: <b>${esc(S.me.name || "tanpa nama")}</b>${S.isOwner ? " · pemilik" : ""}</span><button class="btn sm ghost" type="button" id="acctBtn">Ganti akun</button></span>` : "";
   const rainCtl = reduced ? "" : `<span class="acct"><span>Hujan latar</span><button class="btn sm ghost" type="button" id="rainBtn" aria-pressed="${S.rainOn}">${S.rainOn ? "Jeda hujan" : "Nyalakan hujan"}</button></span>`;
-  $("#foot").innerHTML = acct + ai + st + web + `<span>${S.mems.length} fragmen ingatan</span>` + rainCtl;
+  const autoB = lsGet("ds07.autoBrief", true);
+  const briefCtl = `<span class="acct"><span>Briefing pagi</span><button class="btn sm ghost" type="button" id="autoBriefBtn" aria-pressed="${autoB}">${autoB ? "Otomatis" : "Manual"}</button></span>`;
+  $("#foot").innerHTML = acct + ai + st + web + `<span>${S.mems.length} fragmen ingatan</span>` + briefCtl + rainCtl;
 }
 $("#foot").addEventListener("click", e => {
   if (e.target.closest("#acctBtn")) accountDialog();
+  if (e.target.closest("#autoBriefBtn")){ lsSet("ds07.autoBrief", !lsGet("ds07.autoBrief", true)); renderSide(); }
   if (e.target.closest("#rainBtn")){ S.rainOn = !S.rainOn; lsSet("ds07.rain", S.rainOn); $("#rain").hidden = !S.rainOn; if (S.rainOn) S.rainKick?.(); renderSide(); }
 });
 $("#pane").addEventListener("click", async e => {
@@ -1014,6 +1126,7 @@ const Ops = {
       S.ops.reqs = docs.filter(d => d.kind === "req").sort((a,b) => (b.at||0) - (a.at||0));
       S.ops.reports = docs.filter(d => d.kind === "laporan").sort((a,b) => String(b.date).localeCompare(String(a.date)));
       S.ops.ok = true; renderSide();
+      $("#bfBtn").hidden = !S.ops.reports.length; bfMaybeAuto();
       if (!S.busy && (S.cur?.messages||[]).some(m => (m.opsDrafts||[]).some(d => d.reqId))) renderLog();
     }, () => { S.ops.ok = false; renderSide(); });
   },
@@ -1499,7 +1612,7 @@ function rain(){
     for (const p of drops){
       x.strokeStyle = p.r ? `rgba(255,59,79,${p.a*1.4})` : `rgba(201,206,214,${p.a})`;
       x.lineWidth = p.r ? 1.2 : 1; x.beginPath(); x.moveTo(p.x, p.y); x.lineTo(p.x - p.l*.12, p.y + p.l); x.stroke();
-      if (!reduced){ p.y += p.v; p.x -= p.v*.12; if (p.y > H){ p.y = -p.l; p.x = Math.random()*W*1.1; } }
+      if (!reduced && !(S.rainFreeze > performance.now())){ p.y += p.v; p.x -= p.v*.12; if (p.y > H){ p.y = -p.l; p.x = Math.random()*W*1.1; } }
     }
     if (!reduced && !document.hidden && S.rainOn) requestAnimationFrame(draw);
   };
@@ -1508,6 +1621,349 @@ function rain(){
   draw();
   document.addEventListener("visibilitychange", () => { if (!document.hidden && !reduced && S.rainOn) requestAnimationFrame(draw); });
 }
+
+/* ===================== PROTOKOL BRIEFING =====================
+   Pembuka bersuara: DS-07 "bangun" (tahan untuk menyalakan), lalu membacakan laporan Design Ops
+   mengikuti beat CombatOS — CALM → DETECTION (radar Threat Echo) → FIRST STRIKE (kunci sasaran)
+   → POSITIONING (beban tim) → BREATH → MONEY FRAME (saran emas) → AFTERMATH (kembali ke chat).
+   Data: ops/lap_<tanggal>.brief dari tugas cloud harian; tanpa brief, memakai ringkas + md. */
+const BF = {el:null, raf:0, nodes:[], ripples:[], sparks:[], segs:[], paused:false, skip:false, stopped:true,
+  voice:lsGet("ds07.bfVoice", true), sfx:lsGet("ds07.bfSfx", true), ac:null, drone:null, sweep:0, freezeUntil:0,
+  lastRipple:0, autoTried:false, report:null};
+const bfLatest = () => S.ops.reports?.[0] || null;
+const bfClean = t => String(t || "").replace(/\*\*|__|`|#+\s*/g, "").replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").replace(/\s+/g, " ").trim();
+
+/* ---------- suara sintetis (WebAudio, tanpa file) ---------- */
+function bfAudio(){
+  if (BF.ac || !BF.sfx) return BF.ac;
+  try{ BF.ac = new (window.AudioContext || window.webkitAudioContext)(); }catch{ BF.ac = null; }
+  return BF.ac;
+}
+function bfTone(kind){
+  const ac = BF.sfx ? bfAudio() : null; if (!ac) return;
+  const t = ac.currentTime, out = ac.createGain(); out.connect(ac.destination);
+  const osc = (type, f0, f1, dur, vol, delay = 0) => {
+    const o = ac.createOscillator(), g = ac.createGain(); o.type = type;
+    o.frequency.setValueAtTime(f0, t + delay); if (f1) o.frequency.exponentialRampToValueAtTime(f1, t + delay + dur);
+    g.gain.setValueAtTime(0.0001, t + delay); g.gain.exponentialRampToValueAtTime(vol, t + delay + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + delay + dur);
+    o.connect(g); g.connect(out); o.start(t + delay); o.stop(t + delay + dur + 0.05);
+  };
+  if (kind === "ignite"){ osc("sine", 38, 120, 1.1, 0.35); osc("sawtooth", 80, 640, 0.9, 0.04);
+    const n = ac.createBufferSource(), b = ac.createBuffer(1, ac.sampleRate * 0.6, ac.sampleRate), d = b.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 3);
+    const f = ac.createBiquadFilter(), g = ac.createGain(); f.type = "lowpass"; f.frequency.value = 900; g.gain.value = 0.18;
+    n.buffer = b; n.connect(f); f.connect(g); g.connect(out); n.start(t + 0.05); }
+  if (kind === "thump") osc("sine", 70, 38, 0.45, 0.4);
+  if (kind === "ping") osc("sine", 1500, 1300, 0.12, 0.025);
+  if (kind === "lock"){ osc("square", 880, 0, 0.06, 0.03); osc("square", 1320, 0, 0.08, 0.03, 0.09); }
+  if (kind === "gold"){ [523, 659, 784].forEach((f, i) => osc("triangle", f, 0, 0.9, 0.05, i * 0.06)); }
+  if (kind === "tick") osc("square", 2400, 0, 0.02, 0.012);
+}
+function bfDrone(on){
+  const ac = BF.sfx ? bfAudio() : null;
+  if (!on || !ac){ if (BF.drone){ try{ BF.drone.g.gain.setTargetAtTime(0.0001, BF.ac.currentTime, 0.3); BF.drone.o.forEach(o => o.stop(BF.ac.currentTime + 1)); }catch{} BF.drone = null; } return; }
+  if (BF.drone) return;
+  const g = ac.createGain(); g.gain.value = 0.0001; g.connect(ac.destination);
+  const o = [46, 69.2].map(f => { const x = ac.createOscillator(); x.type = "sine"; x.frequency.value = f; x.connect(g); x.start(); return x; });
+  g.gain.setTargetAtTime(0.018, ac.currentTime, 1.2); BF.drone = {g, o};
+}
+
+/* ---------- naskah dari laporan ---------- */
+function bfScript(r){
+  const b = r.brief, hi = S.me?.name ? greeting().replace(/\.$/, "") + ", " + S.me.name + "." : greeting();
+  const segs = [{beat:["01","CALM"], say:`${hi} Saya kembali. Ini laporan tim desain, ${b?.tanggal || fmtDate(r.date)}.`}];
+  if (b){
+    const ps = (b.projects || []).slice(0, 16);
+    segs.push({beat:["02","DETECTION"], nodes:ps,
+      say:`Threat Echo aktif. ${b.aktif} project aktif terdeteksi. ${b.terlambat ? `${b.terlambat} sudah melewati deadline` : "Tidak ada yang terlambat"}${b.hariIni ? `, ${b.hariIni} jatuh tempo hari ini` : ""}${b.besok ? `, ${b.besok} besok` : ""}.`});
+    const hot = ps.filter(p => (p.telatHari || 0) > 0 || (p.sisaHari != null && p.sisaHari <= 1)).slice(0, 3);
+    if (hot.length) hot.forEach((p, k) => segs.push({beat:["03","FIRST STRIKE"], lock:p, k, of:hot.length,
+      say:`${p.bu ? p.bu + ", " : ""}${p.nama}. PIC ${p.pic || "belum ada"}. ${(p.telatHari || 0) > 0 ? `Terlambat ${p.telatHari} hari` : p.sisaHari === 0 ? "Deadline hari ini" : "Deadline besok"}, status ${p.status || "-"}.`}));
+    else segs.push({beat:["03","FIRST STRIKE"], say:"Tidak ada sasaran kritis. Semua project masih di jalurnya."});
+    const be = (b.beban || []).slice(0, 6);
+    if (be.length){
+      const top = be.slice(0, 2).map(x => `${x.pic} memegang ${x.aktif} project${x.terlambat ? `, ${x.terlambat} terlambat` : ""}`).join(". ");
+      segs.push({beat:["04","POSITIONING"], load:be, say:`Beban tim. ${top}.${b.tanpaPic ? ` ${b.tanpaPic} project belum punya PIC.` : ""}`});
+    }
+    segs.push({beat:["05","BREATH"], flow:b,
+      say:`${b.baru ? `${b.baru} project baru masuk` : "Tidak ada project baru"}. ${b.selesai ? `${b.selesai} selesai${(b.selesaiList || [])[0] ? ", termasuk " + b.selesaiList[0] : ""}.` : "Belum ada yang selesai sejak laporan terakhir."}`});
+    if ((b.saran || []).length) segs.push({beat:["06","MONEY FRAME"], gold:b.saran.slice(0, 3), say:`Saran saya. ${b.saran.slice(0, 3).join(" ")}`});
+  } else {
+    // laporan lama tanpa data terstruktur: bacakan ringkasan dan butir dari markdown
+    const sec = h => { const m = String(r.md || "").split(/\n(?=## )/).find(x => x.toLowerCase().startsWith("## " + h)); return m ? m.split("\n").filter(l => /^\s*[-*\d]/.test(l)).map(bfClean).map(l => l.replace(/^[-*\d.)\s]+/, "")).filter(Boolean) : []; };
+    segs.push({beat:["02","DETECTION"], say:bfClean(r.ringkas) || "Laporan diterima."});
+    sec("perlu tindakan").slice(0, 3).forEach(l => segs.push({beat:["03","FIRST STRIKE"], say:l, card:l}));
+    const sar = sec("saran").slice(0, 3);
+    if (sar.length) segs.push({beat:["06","MONEY FRAME"], gold:sar, say:"Saran saya. " + sar.join(" ")});
+  }
+  segs.push({beat:["07","AFTERMATH"], end:true, say:"Itu saja. Saya di sini kalau kamu butuh."});
+  return segs;
+}
+
+/* ---------- panggung ---------- */
+function bfOpen(auto){
+  const r = bfLatest(); if (!r || BF.el) return;
+  BF.report = r; BF.stopped = false; BF.paused = false; BF.nodes = []; BF.ripples = []; BF.sparks = [];
+  const prev = document.activeElement;
+  const el = document.createElement("div"); el.className = "bf"; el.setAttribute("role","dialog"); el.setAttribute("aria-modal","true"); el.setAttribute("aria-label","Briefing DS-07");
+  el.innerHTML = `<canvas aria-hidden="true"></canvas>
+    <div class="bf-top"><div class="bf-beat"><span>PROTOKOL BRIEFING</span><span class="n" id="bfBeat">00 · <em>STANDBY</em></span></div>
+      <div class="bf-meta"><span>${esc(r.brief?.tanggal || fmtDate(r.date))}</span><br><b id="bfClock"></b> WIB</div></div>
+    <div class="bf-stage" id="bfStage">
+      <div class="bf-core" id="bfCore"><svg class="bf-ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="bg" cx="50" cy="50" r="48"/><circle class="fg" id="bfProg" cx="50" cy="50" r="48" stroke-dasharray="301.6" stroke-dashoffset="301.6"/></svg>
+        <svg class="ava" viewBox="0 0 100 100" aria-hidden="true">${AVA}</svg></div>
+      <div class="bf-wake" id="bfWake">
+        <button class="hold" type="button" id="bfHold">Tahan untuk membangunkan</button>
+        <small>Tahan tombol atau mata DS-07 sampai lingkarannya penuh · Enter juga bisa</small>
+        <button class="ghostlink" type="button" data-bfx>Lewati briefing</button>
+      </div>
+      <div class="bf-panel" id="bfPanel" aria-live="polite"></div>
+      <div class="bf-flash" id="bfFlash"></div>
+    </div>
+    <div class="bf-bottom"><p class="bf-sub" id="bfSub" aria-live="polite"></p>
+      <div class="bf-ctrl" id="bfCtrl" hidden>
+        <button class="btn" type="button" id="bfPause"><span>Jeda</span> <kbd>Spasi</kbd></button>
+        <button class="btn" type="button" id="bfNext">Lanjut <kbd>→</kbd></button>
+        ${S.tts ? `<button class="btn" type="button" id="bfVoice" aria-pressed="${BF.voice}">Suara DS-07</button>` : ""}
+        <button class="btn" type="button" id="bfSfx" aria-pressed="${BF.sfx}">Efek suara</button>
+        <button class="btn" type="button" data-bfx>Lewati <kbd>Esc</kbd></button>
+      </div></div>`;
+  document.body.appendChild(el); BF.el = el; BF.prevFocus = prev;
+  BF.segs = bfScript(r);
+  trapFocus(el);
+  el.querySelectorAll("[data-bfx]").forEach(b => b.onclick = () => bfClose(false));
+  el.addEventListener("keydown", e => {
+    if (e.key === "Escape"){ e.preventDefault(); bfClose(false); }
+    if (BF.started && (e.key === " " || e.code === "Space") && !e.target.closest("button")){ e.preventDefault(); bfTogglePause(); }
+    if (BF.started && e.key === "ArrowRight"){ e.preventDefault(); bfNext(); }
+  });
+  el.addEventListener("pointermove", e => {
+    if (reduced) return;
+    const nx = (e.clientX / innerWidth - .5) * 2, ny = (e.clientY / innerHeight - .5) * 2;
+    const c = $("#bfCore"); c.style.setProperty("--ex", nx.toFixed(2)); c.style.setProperty("--ey", ny.toFixed(2));
+    c.style.setProperty("--px", (nx * -8).toFixed(1) + "px"); c.style.setProperty("--py", (ny * -6).toFixed(1) + "px");
+  });
+  $("#bfPause").onclick = bfTogglePause; $("#bfNext").onclick = bfNext;
+  $("#bfVoice") && ($("#bfVoice").onclick = e => { BF.voice = !BF.voice; lsSet("ds07.bfVoice", BF.voice); e.currentTarget.setAttribute("aria-pressed", String(BF.voice)); if (!BF.voice) S.tts?.stop().catch(()=>{}); });
+  $("#bfSfx").onclick = e => { BF.sfx = !BF.sfx; lsSet("ds07.bfSfx", BF.sfx); e.currentTarget.setAttribute("aria-pressed", String(BF.sfx)); bfDrone(BF.sfx && BF.started); };
+  bfHoldSetup();
+  bfCanvas();
+  $("#bfHold").focus();
+  const tick = () => { if (!BF.el) return; const c = $("#bfClock"); if (c) c.textContent = new Intl.DateTimeFormat("id-ID",{timeZone:"Asia/Jakarta",hour:"2-digit",minute:"2-digit",second:"2-digit"}).format(new Date()); setTimeout(tick, 1000); };
+  tick();
+}
+function bfHoldSetup(){
+  const btn = $("#bfHold"), core = $("#bfCore"), prog = $("#bfProg");
+  let t0 = 0, raf = 0;
+  const HOLD = reduced ? 1 : 900, C = 301.6;
+  const step = () => { const k = Math.min(1, (performance.now() - t0) / HOLD); prog.setAttribute("stroke-dashoffset", String(C * (1 - k)));
+    if (k >= 1){ t0 = 0; bfWake(); return; } if (k > 0 && Math.random() < .25) bfTone("tick"); raf = requestAnimationFrame(step); };
+  const start = e => { if (BF.started || t0) return; e?.preventDefault?.(); bfAudio(); t0 = performance.now(); raf = requestAnimationFrame(step); };
+  const cancel = () => { if (!t0) return; t0 = 0; cancelAnimationFrame(raf); prog.setAttribute("stroke-dashoffset", String(C)); };
+  [btn, core].forEach(x => { x.addEventListener("pointerdown", start); x.addEventListener("pointerup", cancel); x.addEventListener("pointerleave", cancel); x.addEventListener("pointercancel", cancel); });
+  btn.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); bfAudio(); bfWake(); } });
+  btn.addEventListener("click", e => { if (e.detail === 0){ bfAudio(); bfWake(); } });   // aktivasi lewat pembaca layar
+}
+async function bfWake(){
+  if (BF.started) return; BF.started = true;
+  lsSet("ds07.briefed", BF.report.date);
+  const core = $("#bfCore"); core.classList.add("lit"); $("#bfWake").remove(); $("#bfCtrl").hidden = false; $("#bfPause").focus();
+  bfTone("ignite"); setTimeout(() => bfTone("thump"), 420);
+  BF.freezeUntil = performance.now() + 160; S.rainFreeze = BF.freezeUntil;
+  BF.ripples.push({r:0, v:9, a:1, big:true});
+  if (!reduced){ BF.el.classList.add("shake"); setTimeout(() => BF.el?.classList.remove("shake"), 300); }
+  bfDrone(true);
+  await bfSleep(reduced ? 200 : 900);
+  bfRun();
+}
+async function bfRun(){
+  for (let i = 0; i < BF.segs.length; i++){
+    if (BF.stopped) return;
+    const s = BF.segs[i]; BF.skip = false; BF.idx = i;
+    $("#bfBeat").innerHTML = `${esc(s.beat[0])} · <em>${esc(s.beat[1])}</em>`;
+    bfStage(s);
+    $("#bfSub").innerHTML = `<span class="who">DS-07</span>${esc(s.say)}`;
+    await bfSay(s.say);
+    await bfWaitPause();
+    if (!BF.skip) await bfSleep(s.end ? 200 : 450);
+  }
+}
+async function bfSay(text){
+  BF.el?.classList.add("talk");
+  try{
+    if (S.tts && BF.voice) await S.tts.speak([{text, language:"id"}], {voice:"glassy", rate:1.04});
+    else await bfSleep(Math.max(1600, text.split(/\s+/).length * 380));
+  }catch{ /* dihentikan (lanjut/lewati) atau suara tidak tersedia */ if (!BF.skip && !BF.stopped && !(S.tts && BF.voice)) await bfSleep(1200); }
+  BF.el?.classList.remove("talk");
+}
+async function bfSleep(ms){ let left = ms; while (left > 0 && !BF.skip && !BF.stopped){ await sleep(100); if (!BF.paused) left -= 100; } }
+async function bfWaitPause(){ while (BF.paused && !BF.stopped && !BF.skip) await sleep(120); }
+function bfTogglePause(){
+  BF.paused = !BF.paused;
+  const b = $("#bfPause"); if (b) b.querySelector("span").textContent = BF.paused ? "Lanjutkan" : "Jeda";
+  if (S.tts && BF.voice){ (BF.paused ? S.tts.pause() : S.tts.resume()).catch(()=>{}); }
+  BF.el?.classList.toggle("talk", !BF.paused && !!S.tts?.active?.());
+}
+function bfNext(){ BF.skip = true; if (BF.paused) bfTogglePause(); S.tts?.stop().catch(()=>{}); }
+
+/* ---------- visual per beat ---------- */
+function bfStage(s){
+  const panel = $("#bfPanel"); const on = html => { panel.innerHTML = html; panel.classList.add("on"); BF.el.classList.add("bf-split"); setTimeout(bfPlace, 720); };
+  const off = () => { panel.classList.remove("on"); BF.el.classList.remove("bf-split"); setTimeout(bfPlace, 720); };
+  document.querySelectorAll(".bf-node.lock").forEach(n => n.classList.remove("lock"));
+  if (s.nodes){ off(); bfSpawnNodes(s.nodes); return; }
+  if (s.lock){
+    const p = s.lock, late = (p.telatHari || 0) > 0, c = late ? "var(--red)" : "var(--amber)";
+    const node = BF.nodes.find(n => n.p.id === p.id || n.p.nama === p.nama); if (node) node.el.classList.add("lock");
+    bfTone("lock");
+    on(`<div class="bf-card" style="--c:${c}"><small>Sasaran terkunci · ${s.k + 1}/${s.of}</small><div class="bu">${esc(p.bu || "")}</div><h3>${esc(p.nama)}</h3>
+      <dl><dt>PIC</dt><dd>${esc(p.pic || "Belum ada")}</dd><dt>DEADLINE</dt><dd>${esc(p.deadline ? fmtDate(p.deadline) : "-")}</dd><dt>STATUS</dt><dd>${esc(p.status || "-")}</dd></dl>
+      <div class="bf-big">${late ? "Terlambat" : "Sisa"} <b data-roll="${late ? p.telatHari : Math.max(0, p.sisaHari || 0)}">0</b> hari</div></div>`);
+    bfRoll(panel.querySelector("[data-roll]")); return;
+  }
+  if (s.card){ bfTone("lock"); on(`<div class="bf-card"><small>Perlu tindakan</small><h3 style="font-size:20px">${esc(s.card)}</h3></div>`); return; }
+  if (s.load){
+    const max = Math.max(4, ...s.load.map(x => x.aktif));
+    on(`<div class="bf-card" style="--c:var(--silver)"><small>Beban tim · energi armor</small><div class="bf-load">${s.load.map(x => {
+      const cells = Array.from({length:8}, (_, k) => { const lim = Math.round(x.aktif / max * 8), red = Math.round(x.terlambat / max * 8); return k < lim ? (k >= lim - red ? "r" : "f") : ""; });
+      return `<div class="row"><span>${esc(x.pic)}</span><span class="cells">${cells.map(c => `<i class="${c}"></i>`).join("")}</span><span class="n">${x.aktif}${x.terlambat ? ` · ${x.terlambat}!` : ""}</span></div>`; }).join("")}</div></div>`);
+    return;
+  }
+  if (s.flow){
+    const b = s.flow;
+    on(`<div class="bf-card" style="--c:var(--silver)"><small>Arus project</small><div class="bf-flow">
+      <div><h4>Masuk · ${b.baru || 0}</h4>${(b.masuk || []).length ? `<ul>${b.masuk.slice(0,4).map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : "<p class=\"n\" style=\"margin:0;color:var(--muted)\">Tidak ada</p>"}</div>
+      <div><h4>Selesai · ${b.selesai || 0}</h4>${(b.selesaiList || []).length ? `<ul>${b.selesaiList.slice(0,4).map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : "<p style=\"margin:0;color:var(--muted)\">Tidak ada</p>"}</div></div></div>`);
+    return;
+  }
+  if (s.gold){
+    bfTone("gold"); BF.freezeUntil = performance.now() + 220; S.rainFreeze = BF.freezeUntil;
+    const f = $("#bfFlash"); f.classList.remove("go"); void f.offsetWidth; f.classList.add("go");
+    BF.ripples.push({r:0, v:7, a:1, gold:true});
+    on(`<div class="bf-card bf-gold"><small>Money frame · saran</small><ol>${s.gold.map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>`);
+    return;
+  }
+  if (s.end){
+    on(`<div class="bf-card" style="--c:var(--red)"><small>Briefing selesai</small><h3>Kembali ke kanal komunikasi</h3>
+      <div class="bf-end"><button class="btn red" type="button" data-bf-go>Masuk ke DS-07</button>
+      <button class="btn" type="button" data-bf-ask>Tanya soal laporan ini</button>
+      <button class="btn" type="button" data-bf-rep>Laporan lengkap</button>
+      <button class="btn ghost" type="button" data-bf-again>Ulangi briefing</button></div></div>`);
+    const P = $("#bfPanel");
+    P.querySelector("[data-bf-go]").onclick = () => bfClose(true);
+    P.querySelector("[data-bf-ask]").onclick = () => { const d = BF.report.date; bfClose(true); inp.value = `Dari laporan Design Ops ${d}: apa yang paling mendesak hari ini dan bagaimana urutan kerjanya?`; autoGrow(); inp.focus(); };
+    P.querySelector("[data-bf-rep]").onclick = () => { const id = BF.report.id; bfClose(true); setTimeout(() => openReport(id), 750); };
+    P.querySelector("[data-bf-again]").onclick = () => { bfClose(false, true); setTimeout(() => bfOpen(false), 650); };
+    setTimeout(() => P.querySelector("[data-bf-go]")?.focus(), 50);
+    return;
+  }
+  off();
+}
+function bfRoll(el){
+  if (!el) return; const to = +el.dataset.roll || 0;
+  if (reduced){ el.textContent = to; return; }
+  const t0 = performance.now(), d = 800;
+  const f = () => { const k = Math.min(1, (performance.now() - t0) / d); el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(f); };
+  f();
+}
+function bfSpawnNodes(ps){
+  const stage = $("#bfStage"); if (!stage) return;
+  stage.querySelectorAll(".bf-node").forEach(n => n.remove()); BF.nodes = [];
+  ps.forEach((p, i) => {
+    const late = (p.telatHari || 0) > 0, soon = !late && p.sisaHari != null && p.sisaHari <= 1;
+    const rf = late ? 0.5 + 0.12 * Math.max(0, 1 - Math.min(p.telatHari, 30) / 30) : soon ? 0.72 : 0.9;   // makin terlambat makin dekat ke kepala
+    const ang = -Math.PI / 2 + i * (Math.PI * 2 / Math.max(ps.length, 1)) + (i % 2 ? .12 : -.08);
+    const b = document.createElement("button"); b.type = "button"; b.className = "bf-node" + (late ? " red" : soon ? " amb" : "");
+    b.setAttribute("aria-label", `${p.bu ? p.bu + ", " : ""}${p.nama}. PIC ${p.pic || "belum ada"}. ${late ? "Terlambat " + p.telatHari + " hari" : p.deadline ? "Deadline " + fmtDate(p.deadline) : "Tanpa deadline"}`);
+    b.innerHTML = `<i></i><span>${esc(String(p.bu || p.nama).slice(0, 12))}</span>`;
+    b.onclick = () => { if (!BF.paused) bfTogglePause(); bfStage({lock:p, k:i, of:ps.length}); };
+    stage.appendChild(b);
+    BF.nodes.push({el:b, p, rf, ang, lit:false});
+    setTimeout(() => b.classList.add("on"), reduced ? 0 : 120 + i * 70);
+  });
+  bfPlace();
+}
+function bfPlace(){
+  const st = $("#bfStage"), core = $("#bfCore"); if (!st || !core) return;
+  const s = st.getBoundingClientRect(), c = core.getBoundingClientRect();
+  const cx = c.left - s.left + c.width / 2, cy = c.top - s.top + c.height / 2;
+  const R = Math.min(s.width, s.height) * (BF.el.classList.contains("bf-split") && innerWidth > 760 ? .42 : .44);
+  BF.cx = cx; BF.cy = cy; BF.R = R;
+  BF.nodes.forEach(n => { n.x = cx + Math.cos(n.ang) * R * n.rf; n.y = cy + Math.sin(n.ang) * R * n.rf * .82; n.el.style.setProperty("--x", n.x + "px"); n.el.style.setProperty("--y", n.y + "px"); });
+}
+
+/* ---------- kanvas: cincin radar, sapuan, gema ancaman, bara ---------- */
+function bfCanvas(){
+  const cv = BF.el.querySelector("canvas"), x = cv.getContext("2d"); const dpr = Math.min(devicePixelRatio || 1, 2);
+  const size = () => { cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; bfPlace(); };
+  size(); BF.onResize = size; addEventListener("resize", size);
+  const draw = now => {
+    if (!BF.el) return;
+    const frozen = now < BF.freezeUntil;
+    x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, innerWidth, innerHeight);
+    const st = $("#bfStage").getBoundingClientRect(), core = $("#bfCore").getBoundingClientRect();
+    const cx = core.left + core.width / 2, cy = core.top + core.height / 2, R = BF.R || Math.min(st.width, st.height) * .44;
+    // cincin
+    x.lineWidth = 1;
+    [0.5, 0.72, 0.9, 1.04].forEach((k, i) => { x.strokeStyle = i === 0 ? "#ff3b4f2e" : "#c9ced61a"; x.setLineDash(i === 3 ? [2, 6] : []); x.beginPath(); x.ellipse(cx, cy, R * k, R * k * .82, 0, 0, Math.PI * 2); x.stroke(); });
+    x.setLineDash([]);
+    if (BF.started){
+      // sapuan radar
+      if (!frozen && !reduced) BF.sweep += 0.012;
+      const g = x.createConicGradient ? x.createConicGradient(BF.sweep, cx, cy) : null;
+      if (g){ g.addColorStop(0, "#ff3b4f33"); g.addColorStop(.08, "#ff3b4f00"); g.addColorStop(1, "#ff3b4f00");
+        x.fillStyle = g; x.beginPath(); x.ellipse(cx, cy, R * 1.04, R * 1.04 * .82, 0, 0, Math.PI * 2); x.fill(); }
+      // gema ancaman tiap 2,6 detik
+      if (!reduced && now - BF.lastRipple > 2600){ BF.lastRipple = now; BF.ripples.push({r:0, v:3.2, a:.9}); }
+      BF.ripples = BF.ripples.filter(rp => rp.a > 0.02 && rp.r < R * 1.3);
+      BF.ripples.forEach(rp => {
+        if (!frozen) { rp.r += rp.v; rp.a *= rp.big || rp.gold ? .965 : .985; }
+        x.strokeStyle = rp.gold ? `rgba(255,215,106,${rp.a})` : `rgba(255,59,79,${rp.a * .7})`; x.lineWidth = rp.big || rp.gold ? 2.5 : 1.2;
+        x.beginPath(); x.ellipse(cx, cy, rp.r, rp.r * .82, 0, 0, Math.PI * 2); x.stroke();
+        BF.nodes.forEach(n => { const d = R * n.rf; if (!rp.big && !rp.gold && Math.abs(rp.r - d) < rp.v && !n.el.classList.contains("ping")){ n.el.classList.add("ping"); if (n.el.classList.contains("red")) bfTone("ping"); setTimeout(() => n.el.classList.remove("ping"), 380); } });
+      });
+      // garis kunci ke sasaran
+      const lk = BF.nodes.find(n => n.el.classList.contains("lock"));
+      if (lk){ const sx = st.left + lk.x, sy = st.top + lk.y; x.strokeStyle = "#ff3b4f99"; x.setLineDash([4, 5]); x.lineWidth = 1; x.beginPath(); x.moveTo(cx, cy); x.lineTo(sx, sy); x.stroke(); x.setLineDash([]); }
+      // bara naik
+      if (!reduced && !frozen && Math.random() < .35) BF.sparks.push({x:cx + (Math.random() - .5) * R * 1.6, y:innerHeight + 10, v:.6 + Math.random() * 1.4, a:.5 + Math.random() * .4, s:1 + Math.random() * 1.6});
+      BF.sparks = BF.sparks.filter(p => p.y > -10 && p.a > .03);
+      BF.sparks.forEach(p => { if (!frozen){ p.y -= p.v; p.x += Math.sin(p.y / 40) * .3; p.a *= .996; } x.fillStyle = `rgba(255,${80 + (p.s * 30 | 0)},79,${p.a})`; x.fillRect(p.x, p.y, p.s, p.s * 2.2); });
+    }
+    BF.raf = requestAnimationFrame(draw);
+  };
+  BF.raf = requestAnimationFrame(draw);
+}
+
+/* ---------- keluar: kepala menyusut ke avatar di header ---------- */
+function bfClose(toChat, quick){
+  if (!BF.el) return;
+  BF.stopped = true; BF.started = false; S.tts?.stop().catch(()=>{}); bfDrone(false);
+  lsSet("ds07.briefed", BF.report?.date || "");
+  const el = BF.el, core = $("#bfCore"), target = document.querySelector(".ident .ava");
+  if (toChat && target && !reduced && !quick){
+    const a = core.getBoundingClientRect(), b = target.getBoundingClientRect();
+    const dx = b.left + b.width / 2 - (a.left + a.width / 2), dy = b.top + b.height / 2 - (a.top + a.height / 2), k = b.width / a.width;
+    core.style.transition = "transform 750ms cubic-bezier(.65,0,.35,1)";
+    core.style.transform = `translate(-50%,-50%) translate(${dx}px,${dy}px) scale(${k})`;
+    el.querySelectorAll(".bf-top,.bf-bottom,.bf-panel,.bf-node").forEach(n => { n.style.transition = "opacity 300ms"; n.style.opacity = "0"; });
+  }
+  el.classList.add("out");
+  setTimeout(() => {
+    cancelAnimationFrame(BF.raf); removeEventListener("resize", BF.onResize); el.remove(); BF.el = null;
+    if (toChat){ document.body.classList.add("blink"); setTimeout(() => document.body.classList.remove("blink"), 300); }
+    (toChat ? inp : BF.prevFocus || inp)?.focus?.();
+  }, quick ? 300 : 800);
+}
+function bfMaybeAuto(){
+  if (BF.autoTried || BF.el) return;
+  const r = bfLatest(); if (!r) return;
+  BF.autoTried = true;
+  if (r.date !== todayISO() || lsGet("ds07.briefed", "") === r.date || !lsGet("ds07.autoBrief", true)) return;
+  if ($("#dlgHost").innerHTML || S.busy || (S.cur?.messages || []).length) return;
+  bfOpen(true);
+}
+$("#bfBtn").onclick = () => bfOpen(false);
 
 /* ===================== START ===================== */
 const use = name => {
