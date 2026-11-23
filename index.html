@@ -752,7 +752,7 @@ const plain = s => String(s).replace(/```[\s\S]*?```/g," (blok kode) ").replace(
 /* ===================== STATE ===================== */
 const S = {
   sample:null, db:null, user:null, uid:null, tts:null, dict:null, mcp:null, dl:null, limits:null,
-  storage:"memuat", rainOn: lsGet("ds07.rain", true), mode: lsGet("ds07.mode","default"), webOn: lsGet("ds07.web", true), voiceOn: lsGet("ds07.voice", false),
+  storage:"memuat", rainOn: lsGet("ds07.rain", true), ttsVoice: lsGet("ds07.ttsVoice", "rounded"), mode: lsGet("ds07.mode","default"), webOn: lsGet("ds07.web", true), voiceOn: lsGet("ds07.voice", false),
   convs:[], convId:null, mems:[], tab:"arc", isOwner:false,
   ops:{ok:false, config:null, katalog:null, reqs:[], reports:[]}, busy:false, ctl:null, pending:[], webState:"belum", dictating:false
 };
@@ -860,11 +860,13 @@ function renderSide(){
   const acct = S.me ? `<span class="acct"><span><span class="dot ok"></span>Akun: <b>${esc(S.me.name || "tanpa nama")}</b>${S.isOwner ? " · pemilik" : ""}</span><button class="btn sm ghost" type="button" id="acctBtn">Ganti akun</button></span>` : "";
   const rainCtl = reduced ? "" : `<span class="acct"><span>Hujan latar</span><button class="btn sm ghost" type="button" id="rainBtn" aria-pressed="${S.rainOn}">${S.rainOn ? "Jeda hujan" : "Nyalakan hujan"}</button></span>`;
   const autoB = lsGet("ds07.autoBrief", true);
-  const briefCtl = `<span class="acct"><span>Briefing pagi</span><button class="btn sm ghost" type="button" id="autoBriefBtn" aria-pressed="${autoB}">${autoB ? "Otomatis" : "Manual"}</button></span>`;
+  const voiceCtl = S.tts ? `<span class="acct"><span>Suara DS-07: <b>${esc(VOICE_NAME[S.ttsVoice] || S.ttsVoice)}</b></span><button class="btn sm ghost" type="button" id="voiceBtn">Ganti suara</button></span>` : "";
+  const briefCtl = voiceCtl + `<span class="acct"><span>Briefing pagi</span><button class="btn sm ghost" type="button" id="autoBriefBtn" aria-pressed="${autoB}">${autoB ? "Otomatis" : "Manual"}</button></span>`;
   $("#foot").innerHTML = acct + ai + st + web + `<span>${S.mems.length} fragmen ingatan</span>` + briefCtl + rainCtl;
 }
 $("#foot").addEventListener("click", e => {
   if (e.target.closest("#acctBtn")) accountDialog();
+  if (e.target.closest("#voiceBtn")) voiceDialog();
   if (e.target.closest("#autoBriefBtn")){ lsSet("ds07.autoBrief", !lsGet("ds07.autoBrief", true)); renderSide(); }
   if (e.target.closest("#rainBtn")){ S.rainOn = !S.rainOn; lsSet("ds07.rain", S.rainOn); $("#rain").hidden = !S.rainOn; if (S.rainOn) S.rainKick?.(); renderSide(); }
 });
@@ -1565,8 +1567,37 @@ async function speak(text){
     if (lines.length >= 4) break;
   }
   if (cur && lines.length < 5) lines.push(cur);
-  try{ await S.tts.speak(lines.filter(Boolean).map(x => ({text:x}))); }
+  try{ await S.tts.speak(lines.filter(Boolean).map(x => ({text:x})), {voice:S.ttsVoice}); }
   catch(e){ if (e?.code === "not_granted"){ S.tts = null; syncToggles(); } else if (e?.code !== "busy" && e?.reason !== "viewer_stopped") toast("Suara tidak bisa diputar sekarang."); }
+}
+const VOICE_NAME = {buttery:"Buttery", airy:"Airy", glassy:"Glassy", rounded:"Rounded"};
+const VOICE_SAMPLE = "Selamat pagi. Saya kembali. Ini laporan tim desain hari ini.";
+async function voiceDialog(){
+  if (!S.tts) return;
+  let list = Object.keys(VOICE_NAME); try{ const v = await S.tts.voices(); if (v?.length) list = v; }catch{}
+  const host = $("#dlgHost"); const inBrief = !!BF.el; const prev = document.activeElement;
+  const box = document.createElement("div"); box.className = "scrim"; box.setAttribute("role","presentation"); box.style.zIndex = "70";
+  box.innerHTML = `<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="vT" style="width:min(440px,100%)">
+    <h2 id="vT">Pilih suara DS-07</h2>
+    <p>Tekan <b style="color:var(--fg)">Coba</b> untuk mendengar contohnya, lalu pilih yang paling cocok. Berlaku untuk briefing dan tombol Bacakan.</p>
+    <div role="radiogroup" aria-label="Suara" style="display:flex;flex-direction:column;gap:6px;margin:0 0 16px">
+      ${list.map(v => `<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid ${v === S.ttsVoice ? "var(--red-deep)" : "var(--line)"};border-radius:var(--r-c);background:${v === S.ttsVoice ? "#1c070c" : "transparent"}">
+        <label style="flex:1;display:flex;align-items:center;gap:10px;min-height:44px;cursor:pointer"><input type="radio" name="vpick" value="${esc(v)}" ${v === S.ttsVoice ? "checked" : ""} style="width:18px;height:18px;accent-color:var(--red)">${esc(VOICE_NAME[v] || v)}</label>
+        <button class="btn sm" type="button" data-try="${esc(v)}">Coba</button></div>`).join("")}
+    </div>
+    <div class="row"><button class="btn red" type="button" data-x>Selesai</button></div></div>`;
+  (inBrief ? BF.el : host).appendChild(box);
+  const close = () => { S.tts.stop().catch(()=>{}); box.remove(); prev?.focus?.(); };
+  trapFocus(box.querySelector(".dlg"));
+  box.querySelectorAll("[data-try]").forEach(b => b.onclick = () => { S.tts.stop().catch(()=>{}).finally(() => S.tts.speak([{text:VOICE_SAMPLE, language:"id"}], {voice:b.dataset.try}).catch(()=>{})); });
+  box.querySelectorAll('input[name="vpick"]').forEach(r => r.onchange = () => {
+    S.ttsVoice = r.value; lsSet("ds07.ttsVoice", r.value); renderSide();
+    box.querySelectorAll('[role="radiogroup"] > div').forEach(d => { const on = d.querySelector("input").checked; d.style.borderColor = on ? "var(--red-deep)" : "var(--line)"; d.style.background = on ? "#1c070c" : "transparent"; });
+  });
+  box.querySelector("[data-x]").onclick = close;
+  box.addEventListener("click", e => { if (e.target === box) close(); });
+  box.addEventListener("keydown", e => { if (e.key === "Escape"){ e.stopPropagation(); close(); } });
+  box.querySelector('input[name="vpick"]:checked')?.focus();
 }
 async function saveFile(text){
   if (!S.dl) return;
@@ -1726,6 +1757,7 @@ function bfOpen(auto){
         <button class="btn" type="button" id="bfNext">Lanjut <kbd>→</kbd></button>
         ${S.tts ? `<button class="btn" type="button" id="bfVoice" aria-pressed="${BF.voice}">Suara DS-07</button>` : ""}
         <button class="btn" type="button" id="bfSfx" aria-pressed="${BF.sfx}">Efek suara</button>
+        ${S.tts ? `<button class="btn" type="button" id="bfPick">Ganti suara</button>` : ""}
         <button class="btn" type="button" data-bfx>Lewati <kbd>Esc</kbd></button>
       </div></div>`;
   document.body.appendChild(el); BF.el = el; BF.prevFocus = prev;
@@ -1745,6 +1777,7 @@ function bfOpen(auto){
   });
   $("#bfPause").onclick = bfTogglePause; $("#bfNext").onclick = bfNext;
   $("#bfVoice") && ($("#bfVoice").onclick = e => { BF.voice = !BF.voice; lsSet("ds07.bfVoice", BF.voice); e.currentTarget.setAttribute("aria-pressed", String(BF.voice)); if (!BF.voice) S.tts?.stop().catch(()=>{}); });
+  $("#bfPick") && ($("#bfPick").onclick = () => { if (!BF.paused) bfTogglePause(); voiceDialog(); });
   $("#bfSfx").onclick = e => { BF.sfx = !BF.sfx; lsSet("ds07.bfSfx", BF.sfx); e.currentTarget.setAttribute("aria-pressed", String(BF.sfx)); bfDrone(BF.sfx && BF.started); };
   bfHoldSetup();
   bfCanvas();
@@ -1791,7 +1824,7 @@ async function bfRun(){
 async function bfSay(text){
   BF.el?.classList.add("talk");
   try{
-    if (S.tts && BF.voice) await S.tts.speak([{text, language:"id"}], {voice:"glassy", rate:1.04});
+    if (S.tts && BF.voice) await S.tts.speak([{text, language:"id"}], {voice:S.ttsVoice, rate:0.98});
     else await bfSleep(Math.max(1600, text.split(/\s+/).length * 380));
   }catch{ /* dihentikan (lanjut/lewati) atau suara tidak tersedia */ if (!BF.skip && !BF.stopped && !(S.tts && BF.voice)) await bfSleep(1200); }
   BF.el?.classList.remove("talk");
