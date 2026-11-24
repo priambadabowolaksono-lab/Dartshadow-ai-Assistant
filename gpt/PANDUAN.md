@@ -33,7 +33,7 @@ Siapa Lira, dan kenapa DS terus kembali untuknya?
 
 ## 4. Memakai bersama DS-07 di claude.ai
 - **Dari DS-07 ke GPT:** tombol **GPT** di DS-07 membuka ChatGPT biasa dengan pertanyaan sudah terisi. Kalau ingin dijawab oleh DS-07 versi GPT, buka GPT-mu lalu tempel prompt-nya (pakai **Salin prompt**).
-- **Dari GPT ke DS-07:** ketik **"ringkas untuk DS-07"** di ChatGPT, salin hasilnya, lalu di DS-07 tekan **Tempel jawaban GPT**.
+- **Dari GPT ke DS-07:** ketik **"ringkas untuk DS-07"** di ChatGPT, salin hasilnya, lalu di DS-07 tekan **Tempel jawaban** dan pilih sumbernya **ChatGPT**.
 
 ## Batasan
 - DS-07 versi GPT **tidak bisa** membuka arsip, Fragmen Ingatan, atau laporan Design Ops di claude.ai. Ingatannya memakai fitur memori ChatGPT sendiri.
