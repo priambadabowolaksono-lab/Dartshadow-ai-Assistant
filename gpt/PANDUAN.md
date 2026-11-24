@@ -38,3 +38,18 @@ Siapa Lira, dan kenapa DS terus kembali untuknya?
 ## Batasan
 - DS-07 versi GPT **tidak bisa** membuka arsip, Fragmen Ingatan, atau laporan Design Ops di claude.ai. Ingatannya memakai fitur memori ChatGPT sendiri.
 - Bila instruksi atau lore diperbarui di repo ini, ulangi langkah 2 untuk kolom yang berubah. Custom GPT tidak ikut berubah otomatis.
+
+---
+
+# Memasang DS-07 sebagai Gem di Gemini
+
+File yang dipakai sama dengan Custom GPT: `INSTRUKSI.md` dan `LORE_DARTSHADOW.md`.
+
+1. Buka **gemini.google.com**, lalu klik **Gems** (atau *Explore Gems*) di samping kiri, lalu **New Gem**.
+2. **Name:** `DS-07`.
+3. **Instructions:** salin seluruh isi `INSTRUKSI.md`, lalu tempel.
+4. **Knowledge:** unggah `LORE_DARTSHADOW.md`.
+5. Klik **Save**. Gem ini privat secara bawaan. Jangan dibagikan, karena lore-nya bagian dari novel yang belum terbit.
+6. Gem bisa dibuka dari aplikasi Gemini di HP. Ketik **"ringkas untuk DS-07"** untuk mendapat ringkasan yang siap ditempel lewat tombol **Tempel jawaban** di DS-07, lalu pilih sumbernya **Gemini**.
+
+Alternatif di **Google AI Studio**: buka **Playground**, tempel `INSTRUKSI.md` ke kolom **System instructions**, lalu simpan prompt-nya. Cara ini cocok untuk mencoba model Gemini yang berbeda dengan persona yang sama.
