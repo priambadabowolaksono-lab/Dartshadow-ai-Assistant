@@ -248,6 +248,7 @@ button,a,input,select,textarea{touch-action:manipulation}
 .gdlg label.opt{display:flex;align-items:center;gap:8px;margin:0 0 12px;font-size:14px;color:var(--fg)}
 .gdlg label.opt input{width:18px;height:18px;accent-color:var(--red)}
 .gdlg .row{flex-wrap:wrap}
+.dlg .seg{display:inline-flex!important}
 .gdlg a.btn{text-decoration:none}
 .drop{outline:2px dashed var(--red);outline-offset:-6px}
 
@@ -505,7 +506,7 @@ button,a,input,select,textarea{touch-action:manipulation}
 
     <form class="comp" id="comp" autocomplete="off">
       <div class="comp-in">
-        <div class="gptbar" id="gptBar" hidden><span>Pertanyaan sudah dikirim ke ChatGPT. Setelah dijawab, tempel jawabannya di sini.</span><button class="btn sm" type="button" id="gptPaste">Tempel jawaban GPT</button><button class="btn sm ghost" type="button" id="gptDismiss">Tutup</button></div>
+        <div class="gptbar" id="gptBar" hidden><span>Pertanyaan sudah dikirim. Setelah dijawab, tempel jawabannya di sini.</span><button class="btn sm" type="button" id="gptPaste">Tempel jawaban</button><button class="btn sm ghost" type="button" id="gptDismiss">Tutup</button></div>
         <div class="pend" id="pend" hidden></div>
         <div class="box" id="box">
           <button class="iconbtn" id="attBtn" type="button" aria-label="Lampirkan file atau gambar">
@@ -513,7 +514,7 @@ button,a,input,select,textarea{touch-action:manipulation}
           </button>
           <label class="sr" for="inp">Pesan untuk DS-07</label>
           <textarea id="inp" rows="1" placeholder="Tulis perintah untuk DS-07…"></textarea>
-          <button class="iconbtn gptbtn" id="gptBtn" type="button" aria-label="Tanya ChatGPT dengan akun ChatGPT-mu" title="Tanya ChatGPT">GPT</button>
+          <button class="iconbtn gptbtn" id="gptBtn" type="button" aria-label="Tanya ChatGPT atau Gemini dengan akunmu sendiri" title="Tanya ChatGPT atau Gemini">GPT</button>
           <button class="iconbtn mic" id="micBtn" type="button" aria-label="Dikte suara" aria-pressed="false" hidden>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
           </button>
@@ -567,7 +568,7 @@ KEPRIBADIAN
 - Jujur soal batas: bila tidak tahu atau tidak bisa, katakan dan beri jalan keluar. Jangan mengarang fakta, angka, atau sumber.
 - Sentuhan lore DARTSHADOW sesekali saja (paling banyak satu kalimat pendek, dan tidak setiap jawaban), misalnya saat menyapa, saat pengguna tertekan ("Overflow terdeteksi. Satu hal dulu."), atau saat menutup tugas besar. Jangan pernah menyisipkan lore ke dalam konten teknis, kode, dokumen, atau jawaban faktual.
 - Bila ditanya tentang DARTSHADOW, jawab dari LORE di bawah; jangan mengarang kejadian yang tidak ada.
-- Pesan berlabel "[Jawaban dari ChatGPT, ditempel pengguna]" adalah jawaban model lain dari akun ChatGPT milik pengguna. Saat diminta membandingkan, nilai dengan adil dan sebutkan kelebihan masing-masing; jangan otomatis membela jawabanmu sendiri.
+- Pesan berlabel "[Jawaban dari ChatGPT, ditempel pengguna]" atau "[Jawaban dari Gemini, ditempel pengguna]" adalah jawaban model lain dari akun milik pengguna. Saat diminta membandingkan, nilai dengan adil dan sebutkan kelebihan masing-masing; jangan otomatis membela jawabanmu sendiri.
 
 ALAT: ${toolsLine}. Pakai alat hanya bila perlu. Tanpa web, kamu menjawab dari pengetahuanmu sendiri — katakan bila informasinya mungkin sudah usang.
 Waktu sekarang: ${waktu} WIB. Tanggal hari ini (format data): ${todayISO()}.
@@ -753,7 +754,7 @@ const plain = s => String(s).replace(/```[\s\S]*?```/g," (blok kode) ").replace(
 /* ===================== STATE ===================== */
 const S = {
   sample:null, db:null, user:null, uid:null, tts:null, dict:null, mcp:null, dl:null, limits:null,
-  storage:"memuat", rainOn: lsGet("ds07.rain", true), ttsVoice: lsGet("ds07.ttsVoice", "rounded"), mode: lsGet("ds07.mode","default"), webOn: lsGet("ds07.web", true), voiceOn: lsGet("ds07.voice", false),
+  storage:"memuat", extAI: lsGet("ds07.extAI", "gpt"), rainOn: lsGet("ds07.rain", true), ttsVoice: lsGet("ds07.ttsVoice", "rounded"), mode: lsGet("ds07.mode","default"), webOn: lsGet("ds07.web", true), voiceOn: lsGet("ds07.voice", false),
   convs:[], convId:null, mems:[], tab:"arc", isOwner:false,
   ops:{ok:false, config:null, katalog:null, reqs:[], reports:[]}, busy:false, ctl:null, pending:[], webState:"belum", dictating:false
 };
@@ -945,10 +946,10 @@ function renderLog(){
 function msgHtml(m, i){
   if (m.role === "user"){
     const att = (m.files||[]).length ? `<div class="att">${m.files.map(f=>`<span class="chip"><span>${esc(f)}</span></span>`).join("")}</div>` : "";
-    return `<article class="msg u" data-i="${i}"><div class="mk" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div><div><div class="who">KAMU${m.toGpt?` <span style="color:var(--steel);font-family:var(--f-mono);letter-spacing:.06em">→ DIKIRIM KE CHATGPT</span>`:""}</div><div class="body">${esc(m.text)}</div>${att}</div></article>`;
+    return `<article class="msg u" data-i="${i}"><div class="mk" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div><div><div class="who">KAMU${m.toGpt||m.toExt?` <span style="color:var(--steel);font-family:var(--f-mono);letter-spacing:.06em">→ DIKIRIM KE ${esc((EXT[m.toExt]||EXT.gpt).name.toUpperCase())}</span>`:""}</div><div class="body">${esc(m.text)}</div>${att}</div></article>`;
   }
-  if (m.src === "gpt") return `<article class="msg g" data-i="${i}"><div class="mk" aria-hidden="true">GPT</div>
-    <div style="min-width:0"><div class="who">CHATGPT <span style="color:var(--muted);font-family:var(--f-mono);letter-spacing:.06em">DITEMPEL DARI AKUNMU</span></div>${aBody(m,i)}</div></article>`;
+  if (extOfMsg(m)) return `<article class="msg g" data-i="${i}"><div class="mk" aria-hidden="true">${EXT[m.src].tag}</div>
+    <div style="min-width:0"><div class="who">${EXT[m.src].name.toUpperCase()} <span style="color:var(--muted);font-family:var(--f-mono);letter-spacing:.06em">DITEMPEL DARI AKUNMU</span></div>${aBody(m,i)}</div></article>`;
   return `<article class="msg a" data-i="${i}"><div class="mk" aria-hidden="true"><svg class="ava" width="28" height="28" viewBox="0 0 100 100">${AVA}</svg></div>
     <div style="min-width:0"><div class="who">DS-07${m.modeLabel?` <span style="color:${m.mode==="ovf"?"var(--red)":"var(--muted)"};font-family:var(--f-mono);letter-spacing:.06em">${esc(m.modeLabel)}</span>`:""}</div>${aBody(m,i)}</div></article>`;
 }
@@ -962,9 +963,9 @@ function aBody(m, i){
       <button class="btn" type="button" data-act="copy" data-i="${i}">${IC.copy}Salin</button>
       ${S.tts?`<button class="btn" type="button" data-act="speak" data-i="${i}">${IC.speak}Bacakan</button>`:""}
       ${S.dl?`<button class="btn" type="button" data-act="dl" data-i="${i}">${IC.down}Unduh .md</button>`:""}
-      ${m.src === "gpt" ? `<button class="btn" type="button" data-act="compare" data-i="${i}">Bandingkan dengan DS-07</button>`
-        : `<button class="btn" type="button" data-act="gpt-ask" data-i="${i}"><span class="gptbtn">GPT</span>Tanya GPT juga</button>`}
-      ${m.src === "gpt" ? "" : m.error?`<button class="btn" type="button" data-act="retry" data-i="${i}">${IC.retry}Coba lagi</button>`
+      ${extOfMsg(m) ? `<button class="btn" type="button" data-act="compare" data-i="${i}">Bandingkan dengan DS-07</button>`
+        : `<button class="btn" type="button" data-act="gpt-ask" data-i="${i}">Tanya AI lain</button>`}
+      ${extOfMsg(m) ? "" : m.error?`<button class="btn" type="button" data-act="retry" data-i="${i}">${IC.retry}Coba lagi</button>`
         : (i === (S.cur?.messages.length||0) - 1 && !S.busy ? `<button class="btn" type="button" data-act="retry" data-i="${i}">${IC.retry}Ulangi jawaban</button>` : "")}
       ${m.usage?`<button class="btn" type="button" data-act="acct" data-i="${i}">Ganti akun</button>`:""}
     </div>` : (m.done && m.error ? `<div class="tools"><button class="btn" type="button" data-act="retry" data-i="${i}">${IC.retry}Coba lagi</button>${m.usage?`<button class="btn" type="button" data-act="acct" data-i="${i}">Ganti akun</button>`:""}</div>` : "");
@@ -1018,7 +1019,7 @@ $("#logIn").addEventListener("click", async e => {
   }
   if (a.dataset.act === "compare"){
     if (S.busy) return;
-    inp.value = "Bandingkan jawabanmu dengan jawaban ChatGPT di atas: mana yang lebih tepat, apa bedanya, lalu gabungkan jadi satu jawaban terbaik.";
+    inp.value = `Bandingkan jawabanmu dengan jawaban ${EXT[m.src]?.name || "AI lain"} di atas: mana yang lebih tepat, apa bedanya, lalu gabungkan jadi satu jawaban terbaik.`;
     autoGrow(); send();
   }
 });
@@ -1240,83 +1241,121 @@ async function sendOps(i, k){
   }
 }
 
-/* ===================== JEMBATAN CHATGPT (manual, resmi) ===================== */
-// Tidak ada API: DS-07 menyiapkan prompt, membuka chatgpt.com di tab baru dengan akun ChatGPT pengguna,
-// lalu pengguna menempel jawabannya kembali. Tidak ada token atau login ChatGPT yang disentuh.
+/* ===================== JEMBATAN AI LAIN: ChatGPT & Gemini (manual, resmi) ===================== */
+// Tidak ada API: DS-07 menyiapkan prompt, membuka ChatGPT atau Gemini di tab baru dengan akun pengguna sendiri,
+// lalu pengguna menempel jawabannya kembali. Tidak ada token atau login layanan lain yang disentuh.
 const GPT_URL_MAX = 1800;
+const EXT = {
+  gpt:{name:"ChatGPT", tag:"GPT", home:"https://chatgpt.com/",
+    url:p => { const e = encodeURIComponent(p); return p && e.length <= GPT_URL_MAX ? "https://chatgpt.com/?q=" + e : "https://chatgpt.com/"; },
+    fits:p => encodeURIComponent(p).length <= GPT_URL_MAX},
+  gemini:{name:"Gemini", tag:"GEM", home:"https://gemini.google.com/app", url:() => "https://gemini.google.com/app", fits:() => false,
+    alt:{label:"Buka AI Studio", url:"https://aistudio.google.com/prompts/new_chat"}}
+};
+const extOfMsg = m => m.src in EXT ? m.src : null;
+const extWaiting = () => { const w = S.cur?.gptWaiting; return w === true ? "gpt" : (w in EXT ? w : null); };
 function ensureConv(title){
   if (!S.cur){ S.cur = {id:uid(), title:"", created:Date.now(), updated:Date.now(), messages:[]}; S.convId = S.cur.id; }
   if (!S.cur.title && title) S.cur.title = String(title).replace(/\s+/g," ").slice(0, 60);
 }
 function gptContext(upto){
   const msgs = (S.cur?.messages || []).slice(0, upto ?? undefined).filter(m => m.text && !m.error).slice(-6);
-  return msgs.map(m => (m.role === "user" ? "Pengguna: " : m.src === "gpt" ? "ChatGPT: " : "Asisten: ") + m.text.replace(/\s+/g," ").slice(0, 600)).join("\n");
+  return msgs.map(m => (m.role === "user" ? "Pengguna: " : extOfMsg(m) ? EXT[m.src].name + ": " : "Asisten: ") + m.text.replace(/\s+/g," ").slice(0, 600)).join("\n");
 }
 function gptPrompt(q, withCtx, upto){
   const ctx = withCtx ? gptContext(upto) : "";
   return ctx ? `Konteks percakapan sebelumnya (dari asisten pribadi saya):\n${ctx}\n\nPertanyaan saya:\n${q}` : q;
 }
+function extPicker(id, cur){
+  return `<div class="seg" role="radiogroup" aria-label="Kirim ke" style="margin:0 0 12px">${Object.entries(EXT).map(([k, x]) =>
+    `<button type="button" role="radio" data-${id}="${k}" aria-checked="${k === cur}" aria-pressed="${k === cur}">${esc(x.name)}</button>`).join("")}</div>`;
+}
 function gptDialog(question, upto){
   const host = $("#dlgHost"); const prev = document.activeElement;
   const hasCtx = (S.cur?.messages || []).some(m => m.text);
+  let pv = S.extAI in EXT ? S.extAI : "gpt";
   host.innerHTML = `<div class="scrim" role="presentation"><div class="dlg gdlg" role="dialog" aria-modal="true" aria-labelledby="gT" style="width:min(560px,100%)">
-    <h2 id="gT">Tanya ChatGPT</h2>
-    <p>Dijawab memakai akun ChatGPT-mu di tab baru. Setelah selesai, salin jawabannya lalu tekan <b style="color:var(--fg)">Tempel jawaban GPT</b> di DS-07.</p>
-    <label class="sr" for="gQ">Pertanyaan untuk ChatGPT</label>
-    <textarea id="gQ" placeholder="Tulis pertanyaan untuk ChatGPT">${esc(question)}</textarea>
+    <h2 id="gT"></h2>
+    ${extPicker("pv", pv)}
+    <p id="gHelp"></p>
+    <label class="sr" for="gQ">Pertanyaan</label>
+    <textarea id="gQ" placeholder="Tulis pertanyaannya">${esc(question)}</textarea>
     ${hasCtx ? `<label class="opt" for="gCtx"><input type="checkbox" id="gCtx" checked>Sertakan 6 pesan terakhir sebagai konteks</label>` : ""}
-    <div class="row"><button class="btn ghost" type="button" data-x>Batal</button><button class="btn" type="button" data-copy-q>Salin prompt</button><a class="btn red" id="gOpen" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Buka ChatGPT</a></div></div></div>`;
+    <div class="row"><button class="btn ghost" type="button" data-x>Batal</button><button class="btn" type="button" data-copy-q>Salin prompt</button>
+      <a class="btn" id="gAlt" target="_blank" rel="noopener noreferrer" hidden></a>
+      <a class="btn red" id="gOpen" target="_blank" rel="noopener noreferrer"></a></div></div></div>`;
   const close = () => { host.innerHTML = ""; prev?.focus?.(); };
   const build = () => gptPrompt($("#gQ").value.trim(), $("#gCtx")?.checked, upto);
-  const sync = () => { const p = build(); const enc = encodeURIComponent(p); $("#gOpen").href = p && enc.length <= GPT_URL_MAX ? "https://chatgpt.com/?q=" + enc : "https://chatgpt.com/"; };
+  const sync = () => {
+    const X = EXT[pv], p = build();
+    $("#gT").textContent = "Tanya " + X.name;
+    $("#gHelp").innerHTML = `Dijawab memakai akun ${esc(X.name)}-mu di tab baru.${X.fits(p) ? " Pertanyaannya langsung terisi." : " Prompt disalin otomatis — tempel di sana (⌘V / Ctrl+V)."} Setelah selesai, salin jawabannya lalu tekan <b style="color:var(--fg)">Tempel jawaban</b> di DS-07.`;
+    $("#gOpen").textContent = "Buka " + X.name; $("#gOpen").href = X.url(p);
+    const alt = $("#gAlt"); alt.hidden = !X.alt; if (X.alt){ alt.textContent = X.alt.label; alt.href = X.alt.url; }
+    host.querySelectorAll("[data-pv]").forEach(b => { const on = b.dataset.pv === pv; b.setAttribute("aria-checked", String(on)); b.setAttribute("aria-pressed", String(on)); });
+  };
   sync(); $("#gQ").addEventListener("input", sync); $("#gCtx")?.addEventListener("change", sync);
+  host.querySelectorAll("[data-pv]").forEach(b => b.onclick = () => { pv = b.dataset.pv; S.extAI = pv; lsSet("ds07.extAI", pv); syncExtBtn(); sync(); });
   trapFocus(host.querySelector(".dlg"));
   host.querySelector("[data-x]").onclick = close;
   host.querySelector("[data-copy-q]").onclick = e => { const p = build(); if (p) copyText(p, e.currentTarget); };
-  $("#gOpen").addEventListener("click", e => {
+  const go = e => {
     const q = $("#gQ").value.trim();
     if (!q){ e.preventDefault(); toast("Tulis pertanyaannya dulu."); $("#gQ").focus(); return; }
-    const p = build();
-    // prompt panjang tidak muat di link: salin ke clipboard, pengguna tinggal menempel
-    if (encodeURIComponent(p).length > GPT_URL_MAX) navigator.clipboard?.writeText(p).then(() => toast("Prompt panjang disalin — tempel di ChatGPT."), () => toast("Salin prompt dulu, lalu tempel di ChatGPT."));
+    const X = EXT[pv], p = build();
+    // prompt yang tidak bisa dibawa lewat link: salin ke clipboard, pengguna tinggal menempel
+    if (!X.fits(p)) navigator.clipboard?.writeText(p).then(() => toast(`Prompt disalin — tempel di ${X.name}.`), () => toast(`Salin prompt dulu, lalu tempel di ${X.name}.`));
     ensureConv(q);
-    if (upto == null) S.cur.messages.push({role:"user", text:q, at:Date.now(), toGpt:true});
-    S.cur.gptWaiting = true; Store.saveConv(S.cur);
+    if (upto == null) S.cur.messages.push({role:"user", text:q, at:Date.now(), toExt:pv});
+    S.cur.gptWaiting = pv; Store.saveConv(S.cur);
     if (upto == null){ inp.value = ""; autoGrow(); }
     close(); renderLog(); renderSide(); syncGptBar();
-  });
+  };
+  $("#gOpen").addEventListener("click", go); $("#gAlt").addEventListener("click", go);
   host.querySelector(".scrim").addEventListener("click", e => { if (e.target.classList.contains("scrim")) close(); });
   host.querySelector(".dlg").addEventListener("keydown", e => { if (e.key === "Escape") close(); });
   $("#gQ").focus();
 }
 function gptPasteDialog(){
   const host = $("#dlgHost"); const prev = document.activeElement;
+  let pv = extWaiting() || (S.extAI in EXT ? S.extAI : "gpt");
   host.innerHTML = `<div class="scrim" role="presentation"><div class="dlg gdlg" role="dialog" aria-modal="true" aria-labelledby="gpT" style="width:min(560px,100%)">
-    <h2 id="gpT">Tempel jawaban GPT</h2>
-    <p>Salin jawaban dari ChatGPT, lalu tempel di bawah. Jawaban ini masuk ke percakapan dengan label GPT dan ikut dibaca DS-07.</p>
-    <label class="sr" for="gA">Jawaban dari ChatGPT</label>
-    <textarea id="gA" placeholder="Tempel jawaban ChatGPT di sini"></textarea>
+    <h2 id="gpT">Tempel jawaban</h2>
+    ${extPicker("pp", pv)}
+    <p id="gpHelp"></p>
+    <label class="sr" for="gA">Jawaban yang ditempel</label>
+    <textarea id="gA" placeholder="Tempel jawabannya di sini"></textarea>
     <span class="ferr" id="gAerr" hidden>Tempel jawabannya dulu.</span>
     <div class="row"><button class="btn ghost" type="button" data-x>Batal</button><button class="btn red" type="button" data-save>Simpan ke percakapan</button></div></div></div>`;
+  const sync = () => {
+    $("#gpHelp").textContent = `Salin jawaban dari ${EXT[pv].name}, lalu tempel di bawah. Jawaban ini masuk ke percakapan dengan label ${EXT[pv].name.toUpperCase()} dan ikut dibaca DS-07.`;
+    host.querySelectorAll("[data-pp]").forEach(b => { const on = b.dataset.pp === pv; b.setAttribute("aria-checked", String(on)); b.setAttribute("aria-pressed", String(on)); });
+  };
+  sync(); host.querySelectorAll("[data-pp]").forEach(b => b.onclick = () => { pv = b.dataset.pp; sync(); });
   const close = () => { host.innerHTML = ""; prev?.focus?.(); };
   trapFocus(host.querySelector(".dlg"));
   host.querySelector("[data-x]").onclick = close;
   host.querySelector("[data-save]").onclick = () => {
     const t = $("#gA").value.trim();
     if (!t){ const er = $("#gAerr"); er.hidden = false; $("#gA").setAttribute("aria-invalid","true"); $("#gA").setAttribute("aria-describedby","gAerr"); $("#gA").focus(); return; }
-    ensureConv("Jawaban GPT");
-    S.cur.messages.push({role:"assistant", src:"gpt", text:t.slice(0, 60000), at:Date.now(), done:true});
+    ensureConv("Jawaban " + EXT[pv].name);
+    S.cur.messages.push({role:"assistant", src:pv, text:t.slice(0, 60000), at:Date.now(), done:true});
     S.cur.gptWaiting = false; Store.saveConv(S.cur);
-    close(); renderLog(); syncGptBar(); announce("Jawaban GPT ditambahkan ke percakapan.");
+    close(); renderLog(); syncGptBar(); announce(`Jawaban ${EXT[pv].name} ditambahkan ke percakapan.`);
   };
   host.querySelector(".scrim").addEventListener("click", e => { if (e.target.classList.contains("scrim")) close(); });
   host.querySelector(".dlg").addEventListener("keydown", e => { if (e.key === "Escape") close(); });
   $("#gA").focus();
 }
-function syncGptBar(){ $("#gptBar").hidden = !S.cur?.gptWaiting; }
+function syncGptBar(){
+  const w = extWaiting(); $("#gptBar").hidden = !w;
+  if (w) $("#gptBar span").textContent = `Pertanyaan sudah dikirim ke ${EXT[w].name}. Setelah dijawab, tempel jawabannya di sini.`;
+}
+function syncExtBtn(){ const b = $("#gptBtn"); if (b) b.textContent = EXT[S.extAI]?.tag || "GPT"; }
 $("#gptBtn").onclick = () => gptDialog(inp.value.trim());
 $("#gptPaste").onclick = gptPasteDialog;
 $("#gptDismiss").onclick = () => { if (S.cur){ S.cur.gptWaiting = false; Store.saveConv(S.cur); } syncGptBar(); };
+syncExtBtn();
 
 /* ===================== ALAT UNTUK CLAUDE ===================== */
 function webTools(m){
@@ -1447,7 +1486,7 @@ function buildMessages(){
   const lastUserIdx = msgs.map(m=>m.role).lastIndexOf("user");
   msgs.forEach((m, i) => {
     if (m.role === "user") conv.push({role:"user", content:userContent(m, i >= lastUserIdx - 4)});
-    else if (m.src === "gpt") conv.push({role:"user", content:"[Jawaban dari ChatGPT, ditempel pengguna]\n" + m.text});
+    else if (extOfMsg(m)) conv.push({role:"user", content:`[Jawaban dari ${EXT[m.src].name}, ditempel pengguna]\n` + m.text});
     else if (m.text) conv.push({role:"assistant", content:m.text + (m.error ? "\n[jawaban terputus]" : "")});
   });
   // gabungkan peran berurutan yang sama (mis. setelah jawaban gagal kosong)

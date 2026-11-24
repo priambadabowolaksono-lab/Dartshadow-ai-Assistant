@@ -52,6 +52,9 @@ for (const [w, h] of [[1440, 900], [390, 844]]) {
   // jembatan ChatGPT
   await p.fill("#inp", "Pertanyaan untuk GPT"); await p.click("#gptBtn");
   ok(/chatgpt\.com\/\?q=/.test(await p.getAttribute("#gOpen", "href")), `${w}px: link ChatGPT terisi`);
+  await p.click('[data-pv="gemini"]');
+  ok((await p.getAttribute("#gOpen", "href")).startsWith("https://gemini.google.com/") && !(await p.isHidden("#gAlt")), `${w}px: pilihan Gemini + AI Studio`);
+  await p.click('[data-pv="gpt"]');
   await p.click(".gdlg [data-x]");
   // briefing dari awal sampai akhir
   await p.evaluate(br => { S.ops.ok = true; S.ops.config = {}; S.ops.reports = [{ id:"lap_dummy", kind:"laporan", date:todayISO(), ringkas:"Dummy", md:"", brief:br }]; bfOpen(false); }, BRIEF);
