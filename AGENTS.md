@@ -35,7 +35,7 @@ Baca file ini sampai habis sebelum mengubah apa pun.
 | Akun | `function accountDialog`, `DS07_URL` |
 | Lampiran (gambar, PDF, teks) | `function addFiles`, `function pdfText`, `loadPdf` |
 | Jembatan Design Ops | `DESIGN OPS (jembatan)`, `const Ops = {`, `function opsForm`, `function sendOps` |
-| Jembatan ChatGPT | `JEMBATAN CHATGPT`, `function gptDialog`, `function gptPasteDialog` |
+| Jembatan AI lain (ChatGPT, Gemini) | `JEMBATAN AI LAIN`, `const EXT`, `function gptDialog`, `function gptPasteDialog` |
 | Alat untuk Claude (tool calling) | `function webTools`, `function opsTools`, `function coreTools` |
 | Menyusun prompt | `function buildMessages`, `function userContent` |
 | Kirim, streaming, error | `async function send`, `async function run`, `function sampleError` |
@@ -70,7 +70,7 @@ Batasan halaman artifact:
 
 | Jalur | Isi |
 |---|---|
-| `brankas/utama/convs/<id>` | Percakapan `{id,title,created,updated,messages[],gptWaiting?}`. Isi pesan: `{role,text,at,mode?,modeLabel?,scan?,sources?,proposals?,opsDrafts?,src?:"gpt",toGpt?,files?,attText?,imgNames?,error?,done}` |
+| `brankas/utama/convs/<id>` | Percakapan `{id,title,created,updated,messages[],gptWaiting?}`. Isi pesan: `{role,text,at,mode?,modeLabel?,scan?,sources?,proposals?,opsDrafts?,src?:"gpt"|"gemini",toGpt?,toExt?,files?,attText?,imgNames?,error?,done}`; `gptWaiting` bernilai `false`, `true` (lama, berarti gpt), `"gpt"`, atau `"gemini"` |
 | `brankas/utama/mem/<id>` | Fragmen ingatan `{text,created}` |
 | `brankas/meta` | `{pindah:[uid…]}`, penanda migrasi dari folder privat per akun |
 | `ops/config` | Id tugas cloud dan `myMemberId` pemilik di Design Ops. Diatur Claude, jangan ditulis dari kode |
@@ -82,7 +82,7 @@ Aturan akses db (diatur saat publish):
 - `brankas` dan `ops` hanya bisa dibaca dan ditulis level `interact` ke atas, yaitu akun-akun pemilik yang diundang.
 - Bila db tidak ada, aplikasi masuk **mode lokal** (`localStorage`: `ds07.convs`, `ds07.mems`).
 
-Kunci `localStorage` per penonton: `ds07.mode`, `ds07.web`, `ds07.voice`, `ds07.rain`, `ds07.ttsVoice`, `ds07.autoBrief`, `ds07.briefed`, `ds07.bfVoice`, `ds07.bfSfx`. Bungkus semua akses dengan `lsGet` dan `lsSet` (sudah memakai try/catch).
+Kunci `localStorage` per penonton: `ds07.mode`, `ds07.web`, `ds07.voice`, `ds07.rain`, `ds07.ttsVoice`, `ds07.autoBrief`, `ds07.briefed`, `ds07.bfVoice`, `ds07.bfSfx`, `ds07.extAI`. Bungkus semua akses dengan `lsGet` dan `lsSet` (sudah memakai try/catch).
 
 ## Tugas cloud (scheduled task Claude, di akun claude.ai pemilik; bukan di repo)
 

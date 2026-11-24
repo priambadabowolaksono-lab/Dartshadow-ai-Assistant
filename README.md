@@ -19,7 +19,7 @@ DS-07 adalah asisten AI serba bisa bergaya **DARTSHADOW**: HUD gelap, hujan neon
 | Suara | Dikte (Chrome / aplikasi desktop Claude) dan jawaban dibacakan |
 | Unduh | Simpan jawaban sebagai `.md` |
 | Protokol Briefing | Pembuka bersuara saat ada laporan Design Ops hari ini. Kamu menahan tombol untuk membangunkan DS-07, lalu DS-07 membacakan laporan mengikuti beat CombatOS: radar Threat Echo, kunci sasaran, beban tim, dan saran emas. Muncul sekali per hari, bisa diputar ulang lewat tombol **Briefing**, dan bisa diatur Otomatis/Manual di panel kiri |
-| Jembatan ChatGPT | Tombol **GPT** membuka chatgpt.com di tab baru dengan pertanyaan sudah terisi, memakai akun ChatGPT-mu sendiri. Jawabannya kamu tempel kembali lewat **Tempel jawaban GPT**, lalu DS-07 bisa membandingkannya. Tanpa API dan tanpa token |
+| Jembatan AI lain | Tombol **GPT/GEM** membuka **ChatGPT** (pertanyaan langsung terisi) atau **Gemini/AI Studio** (prompt disalin otomatis) di tab baru, memakai akunmu sendiri. Jawabannya kamu tempel kembali lewat **Tempel jawaban**, lalu DS-07 bisa membandingkannya. Tanpa API dan tanpa token |
 
 ## Multi-akun
 
