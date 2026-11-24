@@ -425,7 +425,7 @@ button,a,input,select,textarea{touch-action:manipulation}
   .tools,.prop .frag,.opsf .row{gap:8px}
   .iconbtn,.box .iconbtn,.send{width:44px;height:44px}
   .btn,.btn.sm,.tools .btn,.tg,.seg button,.tabs button,.acct .btn,.memadd input,.opsf input,.opsf select,.linkbox input{min-height:44px}
-  .chip button{min-width:36px;min-height:36px;display:inline-grid;place-items:center}
+  .chip button{min-width:44px;min-height:44px;display:inline-grid;place-items:center}
   .conv{padding-block:6px}
   .hello .fact{min-height:44px}
 }
@@ -634,7 +634,8 @@ function trapFocus(dlg){
   // Tab dan Shift+Tab berputar di dalam dialog
   dlg.addEventListener("keydown", e => {
     if (e.key !== "Tab") return;
-    const f = [...dlg.querySelectorAll('button:not([disabled]),a[href],input,select,textarea,[tabindex]:not([tabindex="-1"])')].filter(x => x.offsetParent !== null);
+    const f = [...dlg.querySelectorAll('button,a[href],input,select,textarea,[tabindex]:not([tabindex="-1"])')]
+      .filter(x => !x.matches(":disabled") && !x.closest("[hidden]") && x.getClientRects().length > 0 && getComputedStyle(x).visibility === "visible");
     if (!f.length) return;
     const first = f[0], last = f[f.length-1];
     if (e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
@@ -1061,6 +1062,7 @@ async function addFiles(list){
       if (S.pending.filter(p=>p.kind==="img").length >= lim.maxCount){ toast(`Maksimal ${lim.maxCount} gambar.`); continue; }
       S.pending.push({kind:"img", name:f.name, blob:f, url:URL.createObjectURL(f)});
     } else if (f.type === "application/pdf" || /\.pdf$/i.test(f.name)){
+      if (f.size > 25 * 1024 * 1024){ toast(`${f.name}: PDF terlalu besar (maks 25 MB).`); continue; }
       const t = await pdfText(f); if (t == null) continue;
       S.pending.push({kind:"txt", name:f.name, text:t});
     } else if (TEXT_EXT.test(f.name) || f.type.startsWith("text/")){
